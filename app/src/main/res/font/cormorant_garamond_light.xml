@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font
+        android:font="@font/cormorant_garamond"
+        android:fontStyle="normal"
+        android:fontWeight="300"
+        android:fontVariationSettings="'wght' 300"
+        app:font="@font/cormorant_garamond"
+        app:fontStyle="normal"
+        app:fontWeight="300"
+        app:fontVariationSettings="'wght' 300" />
+</font-family>

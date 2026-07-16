@@ -92,7 +92,3 @@ lint/tmp/
 # macOS
 .DS_Store
 
-# NOTE: capacitor-cordova-android-plugins, app/src/main/assets/public and the
-# generated capacitor config files are intentionally NOT ignored — the web
-# sources are not part of this repo, so these embedded assets are the app.
-

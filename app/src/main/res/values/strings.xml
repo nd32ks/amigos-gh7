@@ -1,7 +1,18 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">KinBridge</string>
-    <string name="title_activity_main">KinBridge</string>
-    <string name="package_name">com.amigos.kinbridge</string>
-    <string name="custom_url_scheme">com.amigos.kinbridge</string>
+    <string name="welcome_back">Welcome back</string>
+    <string name="login_subtitle">Sign in to continue to KinBridge</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">you@example.com</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">At least 8 characters</string>
+    <string name="sign_in">Sign in</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="error_email">Please enter a valid email address</string>
+    <string name="error_password">Password must be at least 8 characters</string>
+    <string name="reset_unavailable">Password reset isn\'t available yet</string>
+    <string name="login_successful">Login successful</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+    <string name="log_out">Log out</string>
 </resources>
