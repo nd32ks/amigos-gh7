@@ -1,0 +1,4 @@
+// The Capacitor Android library is vendored into ./capacitor-android because
+// this repo intentionally contains no node_modules / web tooling.
+include ':capacitor-android'
+project(':capacitor-android').projectDir = new File('./capacitor-android')

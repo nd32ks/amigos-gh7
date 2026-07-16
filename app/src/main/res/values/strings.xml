@@ -1,5 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Kinbridge</string>
-    <string name="welcome_message">Firebase is set up!</string>
-    <string name="log_event">Log Analytics Event</string>
+    <string name="app_name">KinBridge</string>
+    <string name="title_activity_main">KinBridge</string>
+    <string name="package_name">com.amigos.kinbridge</string>
+    <string name="custom_url_scheme">com.amigos.kinbridge</string>
 </resources>
