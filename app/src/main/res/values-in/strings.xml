@@ -38,4 +38,25 @@
     <string name="back">Kembali</string>
     <string name="font_title">Seberapa besar teks untuk Anda?</string>
     <string name="font_preview">Percakapan Anda akan terlihat seperti ini.</string>
+    <string name="companion_greeting">Selamat pagi, Ibu! Bagaimana kabar Ibu hari ini?</string>
+    <string name="chat_hint">Ketik jawaban Ibu…</string>
+    <string name="send">Kirim</string>
+    <string name="ack_exact">Bagus sekali, Ibu!</string>
+    <string name="ack_warm">Terima kasih sudah bercerita, Ibu.</string>
+    <string name="ack_neutral">Begitu ya. Ceritakan lebih banyak tentang hari Ibu.</string>
+    <string name="pivot_t1">Sepertinya Ibu sudah lelah hari ini. Kita istirahat dulu ya. Mau saya teleponkan Dewi supaya Ibu bisa dengar suaranya?</string>
+    <string name="loading_elder">Sebentar…</string>
+    <string name="elder_subtitle">%1$s · %2$s</string>
+    <string name="trend_title">Tren Kesehatan Kognitif</string>
+    <string name="today_title">Hari Ini</string>
+    <string name="moments_scored">%1$d momen ternilai</string>
+    <string name="recent_moments">Momen Terakhir</string>
+    <string name="disclaimer">Sinyal penyaringan awal — bukan diagnosis medis. Konsultasikan dengan profesional.</string>
+    <string name="alert_acute_title">Ibu Sri mungkin perlu dihubungi</string>
+    <string name="alert_acute_body">Dalam percakapan hari ini, beliau kesulitan mengingat memori keluarga yang penting. Beliau tenang — Kenang bersamanya dan menawarkan untuk menelepon Anda.</string>
+    <string name="alert_warning_text">Terlihat penurunan ingatan peristiwa terbaru minggu ini</string>
+    <string name="alert_call">Telepon Ibu Sri sekarang</string>
+    <string name="alert_view_trend">Lihat tren kesehatan</string>
+    <string name="event_no_answer">Mengganti topik</string>
+    <string name="tier_tag">T%1$d</string>
 </resources>

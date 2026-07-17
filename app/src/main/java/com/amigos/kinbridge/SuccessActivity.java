@@ -34,6 +34,11 @@ public class SuccessActivity extends AppCompatActivity {
         TextView subtitle = findViewById(R.id.successSubtitle);
         subtitle.setText(getString(R.string.signed_in_as, email == null ? "" : email));
 
+        findViewById(R.id.continueRoleButton).setOnClickListener(v -> {
+            startActivity(new Intent(this, OnboardingActivity.routeForRole(this)));
+            finish();
+        });
+
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> {
             userRepository.signOut();

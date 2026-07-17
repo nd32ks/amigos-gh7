@@ -7,6 +7,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LoginActivity extends AppCompatActivity {
 
     private final UserRepository userRepository = new UserRepository();
+
+    /** Keeps the font panel open across the recreate that applies a new scale. */
+    private static boolean fontPanelOpen;
 
     private EditText emailInput;
     private EditText passwordInput;
@@ -47,6 +51,47 @@ public class LoginActivity extends AppCompatActivity {
         TextView createAccountLink = findViewById(R.id.createAccountLink);
         createAccountLink.setOnClickListener(v ->
                 startActivity(new Intent(this, CreateAccountActivity.class)));
+
+        setupFontControl();
+    }
+
+    /** Accessibility font-size control, always reachable via the "Aa" pill. */
+    private void setupFontControl() {
+        View fontPanel = findViewById(R.id.fontPanel);
+        SeekBar slider = findViewById(R.id.loginFontSlider);
+
+        if (fontPanelOpen) {
+            fontPanel.setVisibility(View.VISIBLE);
+        }
+        findViewById(R.id.fontButton).setOnClickListener(v -> {
+            fontPanelOpen = fontPanel.getVisibility() != View.VISIBLE;
+            fontPanel.setVisibility(fontPanelOpen ? View.VISIBLE : View.GONE);
+        });
+
+        slider.setMax(FontScale.stepCount() - 1);
+        slider.setProgress(getSharedPreferences(OnboardingActivity.PREFS, MODE_PRIVATE)
+                .getInt(FontScale.KEY_FONT_STEP, 0));
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                getSharedPreferences(OnboardingActivity.PREFS, MODE_PRIVATE)
+                        .edit().putInt(FontScale.KEY_FONT_STEP, seekBar.getProgress()).apply();
+                // Recreate so attachBaseContext wraps the new fontScale; fade the swap.
+                findViewById(android.R.id.content).animate().alpha(0f).setDuration(150)
+                        .withEndAction(() -> {
+                            recreate();
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                        }).start();
+            }
+        });
     }
 
     private void attemptLogin() {

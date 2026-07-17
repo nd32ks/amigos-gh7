@@ -27,6 +27,63 @@
             android:text="@string/app_name"
             android:textColor="@color/ink_black"
             android:textSize="15sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Accessibility: open the font-size control -->
+        <TextView
+            android:id="@+id/fontButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_lang_toggle"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"
+            android:text="Aa"
+            android:textColor="@color/ink_black"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <!-- Accessibility font-size control: drag to resize all text app-wide -->
+    <LinearLayout
+        android:id="@+id/fontPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="A"
+            android:textColor="@color/ink_black"
+            android:textSize="14sp" />
+
+        <SeekBar
+            android:id="@+id/loginFontSlider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="1"
+            android:max="4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="A"
+            android:textColor="@color/ink_black"
+            android:textSize="24sp" />
     </LinearLayout>
 
     <ScrollView

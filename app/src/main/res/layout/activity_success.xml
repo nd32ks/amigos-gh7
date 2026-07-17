@@ -67,6 +67,20 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/continueRoleButton"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_button_pill"
+        android:stateListAnimator="@null"
+        android:text="@string/continue_button"
+        android:textAllCaps="false"
+        android:textColor="@color/pure_white"
+        android:textSize="15sp" />
+
+    <Button
         android:id="@+id/logoutButton"
         android:layout_width="match_parent"
         android:layout_height="52dp"

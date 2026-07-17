@@ -35,6 +35,13 @@ public class OnboardingActivity extends AppCompatActivity {
     static final String ROLE_SENIOR = "senior";
     static final String ROLE_VOLUNTEER = "volunteer";
 
+    /** Role-based home: seniors get the companion, volunteers the dashboard. */
+    static Class<?> routeForRole(Context context) {
+        String role = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString(KEY_ROLE, ROLE_SENIOR);
+        return ROLE_VOLUNTEER.equals(role) ? DashboardActivity.class : CompanionActivity.class;
+    }
+
     private static final long FADE_MS = 150;
     private static final long GREETING_SWAP_MS = 120;
     private static final long GREETING_PERIOD_MS = 1800;
@@ -63,6 +70,7 @@ public class OnboardingActivity extends AppCompatActivity {
     };
 
     private String selectedRole;
+    private boolean roleChosen;
     private View optionSenior;
     private View optionVolunteer;
     private Button continueButton;
@@ -77,13 +85,11 @@ public class OnboardingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // A live session skips the welcome flow entirely; without one, every
-        // cold start begins at the language step again.
+        // A live session skips the welcome flow entirely and goes straight to
+        // the role's home; without one, every cold start begins at language.
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            Intent intent = new Intent(this, SuccessActivity.class);
-            intent.putExtra(SuccessActivity.EXTRA_EMAIL, currentUser.getEmail());
-            startActivity(intent);
+            startActivity(new Intent(this, routeForRole(this)));
             finish();
             return;
         }
@@ -202,12 +208,12 @@ public class OnboardingActivity extends AppCompatActivity {
             return;
         }
         selectedRole = role;
-        optionSenior.setBackgroundResource(
-                ROLE_SENIOR.equals(role) ? R.drawable.bg_card_selected : R.drawable.bg_card_ripple);
-        optionVolunteer.setBackgroundResource(
-                ROLE_VOLUNTEER.equals(role) ? R.drawable.bg_card_selected : R.drawable.bg_card_ripple);
-        if (!continueButton.isClickable()) {
-            continueButton.setClickable(true);
+        optionSenior.setSelected(ROLE_SENIOR.equals(role));
+        optionVolunteer.setSelected(ROLE_VOLUNTEER.equals(role));
+        if (!roleChosen) {
+            // Do NOT gate on isClickable() here — setOnClickListener() silently
+            // makes the button clickable, which kept this fade from ever running.
+            roleChosen = true;
             continueButton.animate().alpha(1f).setDuration(FADE_MS).start();
         }
     }
@@ -229,9 +235,9 @@ public class OnboardingActivity extends AppCompatActivity {
         prefs.edit().putInt(KEY_STEP, 1).apply();
 
         selectedRole = null;
-        optionSenior.setBackgroundResource(R.drawable.bg_card_ripple);
-        optionVolunteer.setBackgroundResource(R.drawable.bg_card_ripple);
-        continueButton.setClickable(false);
+        roleChosen = false;
+        optionSenior.setSelected(false);
+        optionVolunteer.setSelected(false);
         continueButton.setAlpha(0.35f);
 
         findViewById(R.id.stepRole).setVisibility(View.GONE);

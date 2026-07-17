@@ -38,4 +38,25 @@
     <string name="back">Back</string>
     <string name="font_title">How big should your text be?</string>
     <string name="font_preview">Your conversations will look like this.</string>
+    <string name="companion_greeting">Good morning, Ibu! How are you feeling today?</string>
+    <string name="chat_hint">Type your reply…</string>
+    <string name="send">Send</string>
+    <string name="ack_exact">That\'s wonderful, Ibu!</string>
+    <string name="ack_warm">Thank you for sharing, Ibu.</string>
+    <string name="ack_neutral">I see. Tell me more about your day.</string>
+    <string name="pivot_t1">You seem a little tired today. Let\'s rest for a bit. Shall I call Dewi so you can hear her voice?</string>
+    <string name="loading_elder">One moment…</string>
+    <string name="elder_subtitle">%1$s · %2$s</string>
+    <string name="trend_title">Cognitive Wellness Trend</string>
+    <string name="today_title">Today</string>
+    <string name="moments_scored">%1$d moments scored</string>
+    <string name="recent_moments">Recent Moments</string>
+    <string name="disclaimer">Early screening signal only — not a medical diagnosis. Consult a professional.</string>
+    <string name="alert_acute_title">Ibu Sri may need a check-in</string>
+    <string name="alert_acute_body">During today\'s chat, she had difficulty recalling a core family memory. She is calm — Kenang is with her and offered to call you.</string>
+    <string name="alert_warning_text">Noticeable decline in recent event recall this week</string>
+    <string name="alert_call">Call Ibu Sri now</string>
+    <string name="alert_view_trend">View wellness trend</string>
+    <string name="event_no_answer">Changed the subject</string>
+    <string name="tier_tag">T%1$d</string>
 </resources>

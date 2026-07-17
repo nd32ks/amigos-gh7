@@ -29,6 +29,15 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".CompanionActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".SuccessActivity"
             android:exported="false" />
     </application>
