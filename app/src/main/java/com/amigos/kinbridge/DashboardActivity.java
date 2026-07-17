@@ -46,6 +46,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     private long openedAt;
     private long lastShownAlertTs;
+    private boolean careRole;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -65,6 +66,18 @@ public class DashboardActivity extends AppCompatActivity {
         todayCount = findViewById(R.id.todayCount);
         warningBanner = findViewById(R.id.warningBanner);
         warningText = findViewById(R.id.warningText);
+
+        // Permission matrix (V2.2 §B.2): social workers get trend, adherence,
+        // and alerts — never the diary, family task cards, or profile editing.
+        careRole = OnboardingActivity.ROLE_CARE.equals(
+                getSharedPreferences(OnboardingActivity.PREFS, MODE_PRIVATE)
+                        .getString(OnboardingActivity.KEY_ROLE, OnboardingActivity.ROLE_SENIOR));
+        if (careRole) {
+            findViewById(R.id.tabDiary).setVisibility(View.GONE);
+            findViewById(R.id.diaryContent).setVisibility(View.GONE);
+            findViewById(R.id.onboardLink).setVisibility(View.GONE);
+            findViewById(R.id.delegationsTitle).setVisibility(View.GONE);
+        }
 
         findViewById(R.id.dashboardLogout).setOnClickListener(v -> {            userRepository.signOut();
             FontScale.reset(this);
@@ -105,8 +118,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         findViewById(R.id.tabTrend).setOnClickListener(v -> selectTab(true));
         findViewById(R.id.tabDiary).setOnClickListener(v -> selectTab(false));
-
-        SideMenu.bind(this);
 
         if (getIntent().getBooleanExtra(SideMenu.EXTRA_OPEN_DIARY, false)) {
             getIntent().removeExtra(SideMenu.EXTRA_OPEN_DIARY);
@@ -197,6 +208,9 @@ public class DashboardActivity extends AppCompatActivity {
     private boolean trendTab = true;
 
     private void selectTab(boolean trend) {
+        if (careRole) {
+            trend = true; // care role cannot open the diary (permission matrix)
+        }
         trendTab = trend;
         int[] trendViews = {R.id.trendCard, R.id.adherenceCard, R.id.delegationsTitle,
                 R.id.delegationsList, R.id.momentsTitle, R.id.eventsFeed};
@@ -299,6 +313,9 @@ public class DashboardActivity extends AppCompatActivity {
         LinearLayout list = findViewById(R.id.delegationsList);
         TextView title = findViewById(R.id.delegationsTitle);
         list.removeAllViews();
+        if (careRole) {
+            return; // family task cards are guardian-only (permission matrix)
+        }
         title.setVisibility(docs.isEmpty() ? View.GONE : View.VISIBLE);
         float density = getResources().getDisplayMetrics().density;
         for (DocumentSnapshot doc : docs) {

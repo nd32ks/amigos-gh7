@@ -42,6 +42,7 @@
     <string name="role_care_name">Social Worker</string>
     <string name="role_care_sub">Caseload panel</string>
     <string name="login_as_role">Sign in as %1$s</string>
+    <string name="role_label">Role</string>
     <string name="create_as_role">Create a %1$s account</string>
     <string name="error_role_mismatch">This account is registered as %1$s. Please go back and choose that role.</string>
     <string name="role_senior">Senior citizen</string>

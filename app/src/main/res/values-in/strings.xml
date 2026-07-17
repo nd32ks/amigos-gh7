@@ -42,6 +42,7 @@
     <string name="role_care_name">Pekerja Sosial</string>
     <string name="role_care_sub">Panel perawat</string>
     <string name="login_as_role">Masuk sebagai %1$s</string>
+    <string name="role_label">Peran</string>
     <string name="create_as_role">Buat akun %1$s</string>
     <string name="error_role_mismatch">Akun ini terdaftar sebagai %1$s. Silakan kembali dan pilih peran tersebut.</string>
     <string name="role_senior">Warga senior</string>

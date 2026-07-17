@@ -32,6 +32,10 @@ public class CreateAccountActivity extends AppCompatActivity {
     private TextView genderError;
     private TextView genderFemale;
     private TextView genderMale;
+    private TextView createSubtitle;
+    private TextView roleElder;
+    private TextView roleGuardian;
+    private TextView roleCare;
     private String selectedGender;
     private String role;
     private Button createAccountButton;
@@ -45,8 +49,14 @@ public class CreateAccountActivity extends AppCompatActivity {
         if (role == null) {
             role = OnboardingActivity.ROLE_SENIOR;
         }
-        ((TextView) findViewById(R.id.createSubtitle)).setText(
-                getString(R.string.create_as_role, OnboardingActivity.roleDisplayName(this, role)));
+        createSubtitle = findViewById(R.id.createSubtitle);
+        roleElder = findViewById(R.id.roleElder);
+        roleGuardian = findViewById(R.id.roleGuardian);
+        roleCare = findViewById(R.id.roleCare);
+        roleElder.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_SENIOR));
+        roleGuardian.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_GUARDIAN));
+        roleCare.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_CARE));
+        selectRole(role);
 
         nameInput = findViewById(R.id.nameInput);
         emailInput = findViewById(R.id.emailInput);

@@ -124,11 +124,6 @@ public class CompanionActivity extends AppCompatActivity {
         });
         companionText.setOnClickListener(v -> onDemoTap());
 
-        findViewById(R.id.companionBack).setOnClickListener(v -> {
-            startActivity(new android.content.Intent(this, OnboardingActivity.class));
-            finish();
-        });
-
         guidedRow = findViewById(R.id.guidedRow);
         inputRow = findViewById(R.id.inputRow);
         findViewById(R.id.guidedYes).setOnClickListener(v -> answerGuided(false));
@@ -140,7 +135,6 @@ public class CompanionActivity extends AppCompatActivity {
         reminderEngine.start();
         loadFriends();
         setupVoice();
-        SideMenu.bind(this);
 
         repository.loadProfile(this, new ElderRepository.ProfileCallback() {
             @Override
