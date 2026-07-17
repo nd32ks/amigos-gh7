@@ -1,5 +1,6 @@
 package com.amigos.kinbridge;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -14,6 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 public class CreateAccountActivity extends AppCompatActivity {
 
     private final UserRepository userRepository = new UserRepository();
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontScale.wrap(newBase));
+    }
 
     private EditText nameInput;
     private EditText emailInput;

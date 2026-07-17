@@ -1,5 +1,6 @@
 package com.amigos.kinbridge;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -20,6 +21,11 @@ public class LoginActivity extends AppCompatActivity {
     private TextView emailError;
     private TextView passwordError;
     private Button signInButton;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontScale.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

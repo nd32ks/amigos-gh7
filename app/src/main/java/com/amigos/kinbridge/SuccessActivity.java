@@ -1,5 +1,6 @@
 package com.amigos.kinbridge;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -13,6 +14,11 @@ public class SuccessActivity extends AppCompatActivity {
     static final String EXTRA_TITLE = "com.amigos.kinbridge.EXTRA_TITLE";
 
     private final UserRepository userRepository = new UserRepository();
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontScale.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +37,7 @@ public class SuccessActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> {
             userRepository.signOut();
-            Intent intent = new Intent(this, LoginActivity.class);
+            Intent intent = new Intent(this, OnboardingActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();

@@ -36,4 +36,6 @@
     <string name="role_volunteer_sub">I support and accompany seniors</string>
     <string name="continue_button">Continue</string>
     <string name="back">Back</string>
+    <string name="font_title">How big should your text be?</string>
+    <string name="font_preview">Your conversations will look like this.</string>
 </resources>

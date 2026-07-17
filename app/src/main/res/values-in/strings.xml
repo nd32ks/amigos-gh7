@@ -36,4 +36,6 @@
     <string name="role_volunteer_sub">Saya mendampingi dan merawat lansia</string>
     <string name="continue_button">Lanjut</string>
     <string name="back">Kembali</string>
+    <string name="font_title">Seberapa besar teks untuk Anda?</string>
+    <string name="font_preview">Percakapan Anda akan terlihat seperti ini.</string>
 </resources>

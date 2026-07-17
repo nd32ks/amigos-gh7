@@ -1,12 +1,15 @@
 package com.amigos.kinbridge;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -14,16 +17,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 /**
- * First-run onboarding, shown once before login:
- *   step 1 — language, with a rotating multilingual greeting (Apple-style)
+ * First-run flow, shown whenever there is no signed-in user:
+ *   step 1 — language, with an Indonesian/English rotating greeting
  *   step 2 — role, select a card then Continue (Back returns to step 1)
- * Choices persist in SharedPreferences; every transition is a soft fade.
+ *   step 3 — seniors only: accessibility font-size slider with live preview
+ * Closing the app without logging in (or logging out) lands back here.
  */
 public class OnboardingActivity extends AppCompatActivity {
 
     static final String PREFS = "kinbridge_prefs";
-    static final String KEY_ONBOARDED = "onboarding_done";
     static final String KEY_ROLE = "user_role";
     static final String KEY_STEP = "onboarding_step";
     static final String ROLE_SENIOR = "senior";
@@ -32,17 +38,12 @@ public class OnboardingActivity extends AppCompatActivity {
     private static final long FADE_MS = 150;
     private static final long GREETING_SWAP_MS = 120;
     private static final long GREETING_PERIOD_MS = 1800;
+    private static final float PREVIEW_BASE_SP = 18f;
 
-    /** Greeting + companion prompt, one pair per language. */
+    /** Greeting + companion prompt, alternating Indonesian and English. */
     private static final String[][] GREETINGS = {
             {"Selamat datang!", "Bahasa apa yang ingin Anda gunakan?"},
             {"Welcome!", "What language would you like to speak?"},
-            {"ようこそ！", "どの言語を使いますか？"},
-            {"¡Bienvenido!", "¿Qué idioma te gustaría hablar?"},
-            {"Bienvenue !", "Quelle langue souhaitez-vous parler ?"},
-            {"Willkommen!", "Welche Sprache möchtest du sprechen?"},
-            {"환영합니다!", "어떤 언어를 사용하시겠어요?"},
-            {"欢迎！", "您想使用哪种语言？"},
     };
 
     /** Set before the locale-switch recreate so the new instance fades back in. */
@@ -65,26 +66,46 @@ public class OnboardingActivity extends AppCompatActivity {
     private View optionSenior;
     private View optionVolunteer;
     private Button continueButton;
+    private TextView fontPreview;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(FontScale.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
-        if (prefs.getBoolean(KEY_ONBOARDED, false)) {
-            // Onboarding already done — go straight to login without showing UI.
-            startActivity(new Intent(this, LoginActivity.class));
+        // A live session skips the welcome flow entirely; without one, every
+        // cold start begins at the language step again.
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            Intent intent = new Intent(this, SuccessActivity.class);
+            intent.putExtra(SuccessActivity.EXTRA_EMAIL, currentUser.getEmail());
+            startActivity(intent);
             finish();
             return;
         }
 
+        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         setContentView(R.layout.activity_onboarding);
 
         optionSenior = findViewById(R.id.optionSenior);
         optionVolunteer = findViewById(R.id.optionVolunteer);
         continueButton = findViewById(R.id.continueButton);
+        fontPreview = findViewById(R.id.fontPreview);
 
-        int step = prefs.getInt(KEY_STEP, 1);
+        // Fresh entries (cold start, or right after logout) always begin at the
+        // language step. Only the locale-switch recreate restores the in-flight
+        // step (role), which is what pendingFadeIn marks.
+        int step;
+        if (pendingFadeIn) {
+            step = prefs.getInt(KEY_STEP, 1);
+        } else {
+            step = 1;
+            prefs.edit().putInt(KEY_STEP, 1).apply();
+        }
         findViewById(R.id.stepLanguage).setVisibility(step == 1 ? View.VISIBLE : View.GONE);
         findViewById(R.id.stepRole).setVisibility(step == 2 ? View.VISIBLE : View.GONE);
 
@@ -92,13 +113,40 @@ public class OnboardingActivity extends AppCompatActivity {
         findViewById(R.id.optionEnglish).setOnClickListener(v -> chooseLanguage("en"));
         optionSenior.setOnClickListener(v -> selectRole(ROLE_SENIOR));
         optionVolunteer.setOnClickListener(v -> selectRole(ROLE_VOLUNTEER));
-        continueButton.setOnClickListener(v -> chooseRole());
+        continueButton.setOnClickListener(v -> continueFromRole());
         findViewById(R.id.backToLanguage).setOnClickListener(v -> backToLanguageStep());
+        findViewById(R.id.backToRole).setOnClickListener(v ->
+                crossfadeSteps(findViewById(R.id.stepFont), findViewById(R.id.stepRole)));
+        findViewById(R.id.fontOkButton).setOnClickListener(v -> proceedToLogin());
+
+        SeekBar fontSlider = findViewById(R.id.fontSlider);
+        fontSlider.setMax(FontScale.stepCount() - 1);
+        fontSlider.setProgress(prefs.getInt(FontScale.KEY_FONT_STEP, 0));
+        fontSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // Render the preview in raw pixels so it is not affected by the
+                // currently applied fontScale — it must show the NEW selection.
+                float density = getResources().getDisplayMetrics().density;
+                fontPreview.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                        PREVIEW_BASE_SP * density * FontScale.scaleForStep(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (findViewById(R.id.stepRole).getVisibility() == View.VISIBLE) {
+                if (findViewById(R.id.stepFont).getVisibility() == View.VISIBLE) {
+                    crossfadeSteps(findViewById(R.id.stepFont), findViewById(R.id.stepRole));
+                } else if (findViewById(R.id.stepRole).getVisibility() == View.VISIBLE) {
                     backToLanguageStep();
                 } else {
                     setEnabled(false);
@@ -164,10 +212,22 @@ public class OnboardingActivity extends AppCompatActivity {
         }
     }
 
+    private void continueFromRole() {
+        if (transitioning || selectedRole == null) {
+            return;
+        }
+        prefs.edit().putString(KEY_ROLE, selectedRole).apply();
+        if (ROLE_SENIOR.equals(selectedRole)) {
+            // Seniors get the accessibility font step before login.
+            crossfadeSteps(findViewById(R.id.stepRole), findViewById(R.id.stepFont));
+        } else {
+            proceedToLogin();
+        }
+    }
+
     private void backToLanguageStep() {
         prefs.edit().putInt(KEY_STEP, 1).apply();
 
-        // Reset the role selection so a re-entry starts clean.
         selectedRole = null;
         optionSenior.setBackgroundResource(R.drawable.bg_card_ripple);
         optionVolunteer.setBackgroundResource(R.drawable.bg_card_ripple);
@@ -198,14 +258,14 @@ public class OnboardingActivity extends AppCompatActivity {
         });
     }
 
-    private void chooseRole() {
-        if (transitioning || selectedRole == null) {
+    private void proceedToLogin() {
+        if (transitioning) {
             return;
         }
         transitioning = true;
+        SeekBar fontSlider = findViewById(R.id.fontSlider);
         prefs.edit()
-                .putBoolean(KEY_ONBOARDED, true)
-                .putString(KEY_ROLE, selectedRole)
+                .putInt(FontScale.KEY_FONT_STEP, fontSlider.getProgress())
                 .putInt(KEY_STEP, 1)
                 .apply();
         fadeOut(() -> {
@@ -213,6 +273,16 @@ public class OnboardingActivity extends AppCompatActivity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         });
+    }
+
+    private void crossfadeSteps(View from, View to) {
+        from.animate().alpha(0f).setDuration(FADE_MS).withEndAction(() -> {
+            from.setVisibility(View.GONE);
+            from.setAlpha(1f);
+            to.setAlpha(0f);
+            to.setVisibility(View.VISIBLE);
+            to.animate().alpha(1f).setDuration(FADE_MS).start();
+        }).start();
     }
 
     private void fadeOut(Runnable after) {
