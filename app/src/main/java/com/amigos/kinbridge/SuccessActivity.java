@@ -19,6 +19,8 @@ public class SuccessActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
 
+        LanguageToggle.bind(this);
+
         String email = getIntent().getStringExtra(EXTRA_EMAIL);
         String title = getIntent().getStringExtra(EXTRA_TITLE);
 

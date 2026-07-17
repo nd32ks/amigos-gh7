@@ -29,4 +29,9 @@
     <string name="account_created">Akun berhasil dibuat</string>
     <string name="lang_id_desc">Ganti ke Bahasa Indonesia</string>
     <string name="lang_en_desc">Ganti ke Bahasa Inggris</string>
+    <string name="role_title">Beri tahu kami siapa Anda</string>
+    <string name="role_senior">Warga senior</string>
+    <string name="role_senior_sub">Saya ingin teman ngobrol setiap hari</string>
+    <string name="role_volunteer">Pekerja sosial / relawan</string>
+    <string name="role_volunteer_sub">Saya mendampingi dan merawat lansia</string>
 </resources>

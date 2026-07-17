@@ -29,4 +29,9 @@
     <string name="account_created">Account created</string>
     <string name="lang_id_desc">Switch to Indonesian</string>
     <string name="lang_en_desc">Switch to English</string>
+    <string name="role_title">Tell us who you are</string>
+    <string name="role_senior">Senior citizen</string>
+    <string name="role_senior_sub">I want a friendly daily companion</string>
+    <string name="role_volunteer">Social worker / volunteer</string>
+    <string name="role_volunteer_sub">I support and accompany seniors</string>
 </resources>
