@@ -80,6 +80,16 @@ public class CreateAccountActivity extends AppCompatActivity {
         signInLink.setOnClickListener(v -> finish());
     }
 
+    /** Role chosen on this page becomes the account's role at creation. */
+    private void selectRole(String selected) {
+        role = selected;
+        roleElder.setSelected(OnboardingActivity.ROLE_SENIOR.equals(selected));
+        roleGuardian.setSelected(OnboardingActivity.ROLE_GUARDIAN.equals(selected));
+        roleCare.setSelected(OnboardingActivity.ROLE_CARE.equals(selected));
+        createSubtitle.setText(getString(R.string.create_as_role,
+                OnboardingActivity.roleDisplayName(this, selected)));
+    }
+
     private void selectGender(String gender) {
         selectedGender = gender;
         genderFemale.setSelected("female".equals(gender));
