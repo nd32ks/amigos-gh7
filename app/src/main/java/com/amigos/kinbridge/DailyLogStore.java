@@ -101,4 +101,8 @@ public class DailyLogStore {
     static String formatLine(String time, String speaker, String text) {
         return "[" + time + "] " + speaker + ": " + text;
     }
+
+    static String formatDiarySection(String stamp, String entry) {
+        return "\n--- Buku harian (" + stamp + ") ---\n" + entry;
+    }
 }
