@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Gemini key lives in git-ignored local.properties (GEMINI_API_KEY=...), never in source.
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+
 android {
     namespace = "com.amigos.kinbridge"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -10,6 +17,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "GEMINI_API_KEY",
+                "\"${localProps.getProperty('GEMINI_API_KEY', '')}\""
+    }
+    buildFeatures {
+        buildConfig = true
     }
     buildTypes {
         release {

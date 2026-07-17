@@ -223,7 +223,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/profile_senior"
+                        android:text="@string/role_elder"
                         android:textColor="@color/ink_black"
                         android:textSize="18sp" />
 
@@ -231,7 +231,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="@string/profile_senior_sub"
+                        android:text="@string/role_elder_sub"
                         android:textColor="@color/slate_gray"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -266,7 +266,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/profile_guardian"
+                        android:text="@string/role_guardian_name"
                         android:textColor="@color/ink_black"
                         android:textSize="18sp" />
 
@@ -274,7 +274,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="@string/profile_guardian_sub"
+                        android:text="@string/role_guardian_sub"
                         android:textColor="@color/slate_gray"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -309,7 +309,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/profile_care"
+                        android:text="@string/role_care_name"
                         android:textColor="@color/ink_black"
                         android:textSize="18sp" />
 
@@ -317,7 +317,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="@string/profile_care_sub"
+                        android:text="@string/role_care_sub"
                         android:textColor="@color/slate_gray"
                         android:textSize="13sp" />
                 </LinearLayout>

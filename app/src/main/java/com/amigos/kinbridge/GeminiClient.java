@@ -19,13 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Gemini API client (judge + context-dump extraction).
- * Key is user-supplied for the hackathon demo — production must proxy this
- * through a backend; shipping keys in an APK is inherently extractable.
+ * Gemini API client (judge + context-dump extraction + companion chat).
+ * The key comes from git-ignored local.properties (GEMINI_API_KEY) via
+ * BuildConfig — never commit it to source. Production must proxy this through
+ * a backend; a key packaged in an APK is inherently extractable.
  */
 public final class GeminiClient {
 
-    private static final String API_KEY = "AIzaSyBdw4vQOmkd_XXcTGh7f8pHC37w6sP9qRM";
+    private static final String API_KEY = BuildConfig.GEMINI_API_KEY;
     private static final String MODEL = "gemini-2.5-flash";
     private static final String ENDPOINT =
             "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL
