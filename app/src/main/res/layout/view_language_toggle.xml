@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Standalone language toggle, kept for reuse. Not currently embedded in any
+     screen — include it in a layout and call LanguageToggle.bind(activity) to use. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/languageToggle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_lang_toggle"
+    android:orientation="horizontal"
+    android:padding="4dp">
+
+    <ImageView
+        android:id="@+id/langId"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/lang_id_desc"
+        android:padding="8dp"
+        android:src="@drawable/ic_flag_id" />
+
+    <ImageView
+        android:id="@+id/langEn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="4dp"
+        android:contentDescription="@string/lang_en_desc"
+        android:padding="8dp"
+        android:src="@drawable/ic_flag_gb" />
+</LinearLayout>

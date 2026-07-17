@@ -34,4 +34,6 @@
     <string name="role_senior_sub">I want a friendly daily companion</string>
     <string name="role_volunteer">Social worker / volunteer</string>
     <string name="role_volunteer_sub">I support and accompany seniors</string>
+    <string name="continue_button">Continue</string>
+    <string name="back">Back</string>
 </resources>
