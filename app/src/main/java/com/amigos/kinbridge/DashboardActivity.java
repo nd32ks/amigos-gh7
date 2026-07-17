@@ -69,11 +69,12 @@ public class DashboardActivity extends AppCompatActivity {
             finish();
         });
 
-        repository.ensureSeeded(() -> repository.loadProfile(new ElderRepository.ProfileCallback() {
+        repository.ensureSeeded(() -> repository.loadProfile(this, new ElderRepository.ProfileCallback() {
             @Override
             public void onLoaded(ElderProfile profile) {
                 TextView subtitle = findViewById(R.id.elderSubtitle);
-                subtitle.setText(getString(R.string.elder_subtitle, profile.name, profile.location));
+                subtitle.setText(getString(R.string.elder_subtitle,
+                        profile.preferredAddress, profile.city));
             }
 
             @Override
@@ -88,6 +89,7 @@ public class DashboardActivity extends AppCompatActivity {
         trendRegistration = repository.listenTrend(this::onTrend);
         eventsRegistration = repository.listenEvents(this::onEvents);
         alertsRegistration = repository.listenAlerts(this::onAlert);
+        scheduleTrendFallback();
     }
 
     @Override
@@ -107,6 +109,9 @@ public class DashboardActivity extends AppCompatActivity {
     // ---- Live data ----
 
     private void onTrend(List<DocumentSnapshot> docs) {
+        if (!docs.isEmpty()) {
+            trendLoaded = true;
+        }
         List<Double> cri = new ArrayList<>();
         List<Double> ewma = new ArrayList<>();
         for (DocumentSnapshot doc : docs) {
@@ -120,16 +125,34 @@ public class DashboardActivity extends AppCompatActivity {
         trendChart.setData(cri, ewma);
     }
 
+    private boolean trendLoaded;
+
+    /** Falls back to the bundled 30-day seed if Firestore yields nothing. */
+    private void scheduleTrendFallback() {
+        trendChart.postDelayed(() -> {
+            if (!trendLoaded) {
+                List<Double> cri = new ArrayList<>();
+                List<Double> ewma = new ArrayList<>();
+                for (double[] pair : ElderRepository.localSeedTrend()) {
+                    cri.add(pair[0]);
+                    ewma.add(pair[1]);
+                }
+                trendChart.setData(cri, ewma);
+            }
+        }, 4000);
+    }
+
     private void onEvents(List<DocumentSnapshot> docs) {
         eventsFeed.removeAllViews();
         long startOfDay = startOfToday();
         int today = 0;
         for (DocumentSnapshot doc : docs) {
             Long ts = doc.getLong("ts");
-            if (ts != null && ts >= startOfDay) {
+            String verdict = doc.getString("verdict");
+            if (ts != null && ts >= startOfDay && !"match".equals(verdict)) {
                 today++;
             }
-            addEventRow(doc.getString("verdict"), doc.getString("label"),
+            addEventRow(verdict, doc.getString("label"),
                     doc.getLong("tier") != null ? doc.getLong("tier").intValue() : 3);
         }
         todayCount.setText(getString(R.string.moments_scored, today));
@@ -152,6 +175,9 @@ public class DashboardActivity extends AppCompatActivity {
         if ("exact".equals(verdict)) {
             icon.setText("✓");
             icon.setTextColor(getColor(R.color.mint_pulse));
+        } else if ("match".equals(verdict)) {
+            icon.setText("+");
+            icon.setTextColor(getColor(R.color.signal_violet));
         } else if ("miss".equals(verdict)) {
             icon.setText("✗");
             icon.setTextColor(getColor(R.color.ink_black));

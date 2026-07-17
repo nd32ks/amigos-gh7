@@ -59,4 +59,17 @@
     <string name="alert_view_trend">Lihat tren kesehatan</string>
     <string name="event_no_answer">Mengganti topik</string>
     <string name="tier_tag">T%1$d</string>
+    <string name="match_title">Ada teman baru untuk Ibu!</string>
+    <string name="match_details">%1$.1f km dari Ibu · %2$s</string>
+    <string name="match_notify">Beritahu Dewi</string>
+    <string name="match_notified">Dewi sudah diberitahu</string>
+    <string name="profile_senior_sub">Ngobrol dengan Kenang</string>
+    <string name="profile_senior">Ibu Sri — Elder</string>
+    <string name="profile_guardian">Dewi — Keluarga</string>
+    <string name="profile_guardian_sub">Dasbor kesehatan keluarga</string>
+    <string name="profile_care">Sari — Pekerja Sosial</string>
+    <string name="profile_care_sub">Panel perawat</string>
+    <string name="care_title">Panel Perawat</string>
+    <string name="adherence_pct">Kepatuhan %1$d%%</string>
+    <string name="alert_badge">Peringatan</string>
 </resources>

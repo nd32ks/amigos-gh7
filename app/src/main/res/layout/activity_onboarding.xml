@@ -194,13 +194,13 @@
                     android:textSize="34sp" />
             </FrameLayout>
 
-            <!-- Senior citizen option -->
+            <!-- Ibu Sri — Elder (instant entry) -->
             <LinearLayout
                 android:id="@+id/optionSenior"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:background="@drawable/bg_option_card"
+                android:background="@drawable/bg_card_ripple"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -223,7 +223,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/role_senior"
+                        android:text="@string/profile_senior"
                         android:textColor="@color/ink_black"
                         android:textSize="18sp" />
 
@@ -231,19 +231,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="@string/role_senior_sub"
+                        android:text="@string/profile_senior_sub"
                         android:textColor="@color/slate_gray"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Social worker / volunteer option -->
+            <!-- Dewi — Guardian (instant entry) -->
             <LinearLayout
-                android:id="@+id/optionVolunteer"
+                android:id="@+id/optionGuardian"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_option_card"
+                android:background="@drawable/bg_card_ripple"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -266,7 +266,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/role_volunteer"
+                        android:text="@string/profile_guardian"
                         android:textColor="@color/ink_black"
                         android:textSize="18sp" />
 
@@ -274,24 +274,54 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="@string/role_volunteer_sub"
+                        android:text="@string/profile_guardian_sub"
                         android:textColor="@color/slate_gray"
                         android:textSize="13sp" />
                 </LinearLayout>
             </LinearLayout>
 
-            <Button
-                android:id="@+id/continueButton"
+            <!-- Sari — Social Worker (instant entry) -->
+            <LinearLayout
+                android:id="@+id/optionCare"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="28dp"
-                android:alpha="0.35"
-                android:background="@drawable/bg_button_pill"
-                android:stateListAnimator="@null"
-                android:text="@string/continue_button"
-                android:textAllCaps="false"
-                android:textColor="@color/pure_white"
-                android:textSize="17sp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="76dp"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_care" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/profile_care"
+                        android:textColor="@color/ink_black"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/profile_care_sub"
+                        android:textColor="@color/slate_gray"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/backToLanguage"

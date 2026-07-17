@@ -59,4 +59,17 @@
     <string name="alert_view_trend">View wellness trend</string>
     <string name="event_no_answer">Changed the subject</string>
     <string name="tier_tag">T%1$d</string>
+    <string name="match_title">There\'s a new friend for you!</string>
+    <string name="match_details">%1$.1f km away · %2$s</string>
+    <string name="match_notify">Tell Dewi</string>
+    <string name="match_notified">Dewi has been notified</string>
+    <string name="profile_senior_sub">Talk with Kenang</string>
+    <string name="profile_senior">Ibu Sri — Elder</string>
+    <string name="profile_guardian">Dewi — Guardian</string>
+    <string name="profile_guardian_sub">Family wellness dashboard</string>
+    <string name="profile_care">Sari — Social Worker</string>
+    <string name="profile_care_sub">Caseload panel</string>
+    <string name="care_title">Social Worker Panel</string>
+    <string name="adherence_pct">%1$d%% adherence</string>
+    <string name="alert_badge">Alert</string>
 </resources>

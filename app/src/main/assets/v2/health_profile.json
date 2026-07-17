@@ -1,0 +1,8 @@
+{
+  "profile_id": "elder_0001",
+  "visibility": "private",
+  "conditions": ["hipertensi", "diabetes_tipe_2", "osteoartritis_lutut"],
+  "allergies": ["seafood_kerang"],
+  "mobility": "walks_unaided_short_distances",
+  "diet_flags": ["low_sugar", "low_salt"]
+}

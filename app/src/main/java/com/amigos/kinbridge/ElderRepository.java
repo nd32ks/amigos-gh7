@@ -1,25 +1,36 @@
 package com.amigos.kinbridge;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Firestore access for the elder's ground-truth profile, event ledger,
- * trend points and family alerts (system_architecture.md §3, Firestore flavour).
+ * Access layer. Ground-truth profile/facts/groups come from the bundled
+ * assets/elder_context.json (LAW shape — cannot fail on rules). Live state
+ * (events, trend, alerts) lives in Firestore with listeners. Probe cooldowns
+ * persist in SharedPreferences.
  */
 public class ElderRepository {
 
     public static final String ELDER_ID = "ibu_sri";
     private static final String ELDERS = "elders";
+    private static final String STATE_PREFS = "elder_state";
+    private static final double SEEDED_EWMA = 60.0;
 
     public interface ProfileCallback {
         void onLoaded(ElderProfile profile);
@@ -33,84 +44,109 @@ public class ElderRepository {
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    /** Seeds Ibu Sri's profile + 30-day pre-seeded trend (82→60) if absent. */
-    public void ensureSeeded(SimpleCallback onDone) {
-        db.collection(ELDERS).document(ELDER_ID).get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
-                onDone.onDone();
-                return;
+    // ---- Profile (bundled LAW data) ----
+
+    public void loadProfile(Context context, ProfileCallback callback) {
+        try {
+            String json = readAsset(context, "elder_context.json");
+            JSONObject root = new JSONObject(json);
+
+            JSONObject elder = root.getJSONObject("elder");
+            List<ElderFact> facts = new ArrayList<>();
+            JSONArray factsArr = root.getJSONArray("facts");
+            SharedPreferences state = context.getSharedPreferences(STATE_PREFS, Context.MODE_PRIVATE);
+            for (int i = 0; i < factsArr.length(); i++) {
+                ElderFact f = ElderFact.fromJson(factsArr.getJSONObject(i));
+                f.lastProbedAt = state.getLong("probed_" + f.factId, 0);
+                facts.add(f);
             }
-            Map<String, Object> elder = new HashMap<>();
-            elder.put("name", "Ibu Sri Rahayu Wijaya");
-            elder.put("location", "Gading Serpong");
-            elder.put("prevEwma", 60.0);
-            elder.put("facts", seedFactMaps());
-            db.collection(ELDERS).document(ELDER_ID).set(elder)
-                    .addOnSuccessListener(unused -> seedTrend(onDone))
-                    .addOnFailureListener(e -> onDone.onDone());
-        }).addOnFailureListener(e -> onDone.onDone());
+
+            List<ElderProfile.CommunityGroup> groups = new ArrayList<>();
+            JSONArray groupsArr = root.optJSONArray("community_groups_mock");
+            if (groupsArr != null) {
+                for (int i = 0; i < groupsArr.length(); i++) {
+                    JSONObject g = groupsArr.getJSONObject(i);
+                    ElderProfile.CommunityGroup group = new ElderProfile.CommunityGroup();
+                    group.groupId = g.getString("group_id");
+                    group.name = g.getString("name");
+                    group.meets = g.optString("meets");
+                    group.distanceKm = g.optDouble("distance_km");
+                    group.keywords = ElderFact.toStringList(g.optJSONArray("interest_keywords"));
+                    groups.add(group);
+                }
+            }
+
+            String phone = "";
+            JSONArray contacts = root.optJSONArray("escalation_contacts");
+            if (contacts != null && contacts.length() > 0) {
+                phone = contacts.getJSONObject(0).optString("phone");
+            }
+
+            callback.onLoaded(new ElderProfile(
+                    elder.getString("name"), elder.optString("preferred_address", elder.getString("name")),
+                    elder.optString("city"), SEEDED_EWMA, phone, facts, groups));
+        } catch (Exception e) {
+            callback.onError(e.getMessage());
+        }
     }
 
-    /** 30 days of gentle decline 82→60 with a deterministic wobble (demo chart). */
-    private void seedTrend(SimpleCallback onDone) {
-        long dayMs = 24L * 3600_000L;
-        long now = System.currentTimeMillis();
+    public void markProbed(Context context, ElderFact fact) {
+        fact.lastProbedAt = System.currentTimeMillis();
+        context.getSharedPreferences(STATE_PREFS, Context.MODE_PRIVATE)
+                .edit().putLong("probed_" + fact.factId, fact.lastProbedAt).apply();
+    }
+
+    private static String readAsset(Context context, String name) throws Exception {
+        InputStream in = context.getAssets().open(name);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            out.write(buf, 0, n);
+        }
+        in.close();
+        return new String(out.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    // ---- Trend pre-seed (30-day decline 82→60, demo chart) ----
+
+    /** Seeds trend points into Firestore only if the collection is empty. */
+    public void ensureSeeded(SimpleCallback onDone) {
+        db.collection(ELDERS).document(ELDER_ID).collection("trend").limit(1).get()
+                .addOnSuccessListener(snap -> {
+                    if (!snap.isEmpty()) {
+                        onDone.onDone();
+                        return;
+                    }
+                    long dayMs = 24L * 3600_000L;
+                    long now = System.currentTimeMillis();
+                    for (int i = 0; i < 30; i++) {
+                        double cri = 82 - (22.0 * i / 29) + 2.5 * Math.sin(i * 1.7);
+                        double ewma = 82 - (22.0 * i / 29) + 1.2 * Math.sin(i * 0.9);
+                        Map<String, Object> point = new HashMap<>();
+                        point.put("ts", now - (29L - i) * dayMs);
+                        point.put("cri", cri);
+                        point.put("ewma", ewma);
+                        point.put("probes", 4 + (i % 3));
+                        db.collection(ELDERS).document(ELDER_ID).collection("trend").add(point);
+                    }
+                    onDone.onDone();
+                })
+                .addOnFailureListener(e -> onDone.onDone());
+    }
+
+    /** Local copy of the seeded trend, for offline/rules-denied fallback. */
+    public static List<double[]> localSeedTrend() {
+        List<double[]> points = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
             double cri = 82 - (22.0 * i / 29) + 2.5 * Math.sin(i * 1.7);
             double ewma = 82 - (22.0 * i / 29) + 1.2 * Math.sin(i * 0.9);
-            Map<String, Object> point = new HashMap<>();
-            point.put("ts", now - (29L - i) * dayMs);
-            point.put("cri", cri);
-            point.put("ewma", ewma);
-            point.put("probes", 4 + (i % 3));
-            db.collection(ELDERS).document(ELDER_ID).collection("trend").add(point);
+            points.add(new double[]{cri, ewma});
         }
-        onDone.onDone();
+        return points;
     }
 
-    /** Offline / rules-denied fallback profile built from the same seed data. */
-    public ElderProfile localSeedProfile() {
-        List<ElderFact> facts = new ArrayList<>();
-        for (Map<String, Object> m : seedFactMaps()) {
-            facts.add(ElderFact.fromMap(m));
-        }
-        return new ElderProfile("Ibu Sri Rahayu Wijaya", "Gading Serpong", 60.0, facts);
-    }
-
-    public void loadProfile(ProfileCallback callback) {
-        db.collection(ELDERS).document(ELDER_ID).get().addOnSuccessListener(doc -> {
-            if (!doc.exists()) {
-                callback.onError("elder profile missing");
-                return;
-            }
-            callback.onLoaded(profileFrom(doc));
-        }).addOnFailureListener(e -> callback.onError(e.getMessage()));
-    }
-
-    @SuppressWarnings("unchecked")
-    private ElderProfile profileFrom(DocumentSnapshot doc) {
-        List<ElderFact> facts = new ArrayList<>();
-        Object raw = doc.get("facts");
-        if (raw instanceof List) {
-            for (Object item : (List<Object>) raw) {
-                if (item instanceof Map) {
-                    facts.add(ElderFact.fromMap((Map<String, Object>) item));
-                }
-            }
-        }
-        Double prev = doc.getDouble("prevEwma");
-        return new ElderProfile(doc.getString("name"), doc.getString("location"),
-                prev != null ? prev : 60.0, facts);
-    }
-
-    /** Writes back the facts array (updates last_probed_at after a probe). */
-    public void saveFacts(List<ElderFact> facts) {
-        List<Map<String, Object>> maps = new ArrayList<>();
-        for (ElderFact f : facts) {
-            maps.add(f.toMap());
-        }
-        db.collection(ELDERS).document(ELDER_ID).update("facts", maps);
-    }
+    // ---- Live state (events, trend, alerts) ----
 
     public void saveEvent(int tier, String verdict, int rawPoints, double criCredit, String label) {
         Map<String, Object> event = new HashMap<>();
@@ -123,6 +159,15 @@ public class ElderRepository {
         db.collection(ELDERS).document(ELDER_ID).collection("events").add(event);
     }
 
+    public void saveMatchEvent(String label) {
+        Map<String, Object> event = new HashMap<>();
+        event.put("ts", System.currentTimeMillis());
+        event.put("tier", 0);
+        event.put("verdict", "match");
+        event.put("label", label);
+        db.collection(ELDERS).document(ELDER_ID).collection("events").add(event);
+    }
+
     public void saveTrendPoint(double cri, double ewma, int probes) {
         Map<String, Object> point = new HashMap<>();
         point.put("ts", System.currentTimeMillis());
@@ -130,7 +175,6 @@ public class ElderRepository {
         point.put("ewma", ewma);
         point.put("probes", probes);
         db.collection(ELDERS).document(ELDER_ID).collection("trend").add(point);
-        db.collection(ELDERS).document(ELDER_ID).update("prevEwma", ewma);
     }
 
     public void saveAlert(String kind, String title, String body) {
@@ -182,62 +226,5 @@ public class ElderRepository {
 
     public interface AlertsListener {
         void onAlert(DocumentSnapshot alert);
-    }
-
-    /** Ground-truth facts reconstructed from agents/prompts.md + demo_script.md. */
-    private List<Map<String, Object>> seedFactMaps() {
-        List<ElderFact> facts = new ArrayList<>();
-
-        facts.add(fact("T1_SPOUSE_NAME", 1,
-                "Bagaimana kabar suami Ibu hari ini? Siapa nama beliau?",
-                "How is your husband today? What is his name?",
-                "Budi Wijaya", Arrays.asList("pak budi", "budi"),
-                "nama suaminya", "her husband's name", 48));
-
-        facts.add(fact("T2_FAMILY_VISIT", 2,
-                "Ada yang datang berkunjung minggu ini? Siapa yang datang?",
-                "Has anyone visited this week? Who came?",
-                "Dewi", Arrays.asList("dewi"),
-                "kunjungan keluarga minggu ini", "this week's family visit", 24));
-
-        facts.add(fact("T3_ORCHIDS", 3,
-                "Bagaimana kabar tanaman kesayangan Ibu? Sudah berbunga?",
-                "How are your beloved plants? Have they bloomed?",
-                "anggrek bulan", Arrays.asList("anggrek"),
-                "anggreknya", "her orchids", 12));
-
-        facts.add(fact("T3_BREAKFAST", 3,
-                "Apa yang Ibu makan untuk sarapan pagi ini?",
-                "What did you eat for breakfast this morning?",
-                "bubur ayam", Arrays.asList("bubur"),
-                "sarapan hari ini", "today's breakfast", 12));
-
-        facts.add(fact("T3_RESTAURANT", 3,
-                "Restoran yang Ibu kasih bintang lima itu, apa namanya?",
-                "That restaurant you rated five stars — what was its name?",
-                "ENA Dining", Arrays.asList("ena", "omakase"),
-                "restoran favoritnya", "her favorite restaurant", 12));
-
-        List<Map<String, Object>> maps = new ArrayList<>();
-        for (ElderFact f : facts) {
-            maps.add(f.toMap());
-        }
-        return maps;
-    }
-
-    private ElderFact fact(String id, int tier, String qId, String qEn, String canonical,
-                           List<String> aliases, String topicId, String topicEn, long cooldownHours) {
-        ElderFact f = new ElderFact();
-        f.factId = id;
-        f.tier = tier;
-        f.questionId = qId;
-        f.questionEn = qEn;
-        f.canonical = canonical;
-        f.aliases = aliases;
-        f.topicId = topicId;
-        f.topicEn = topicEn;
-        f.cooldownHours = cooldownHours;
-        f.lastProbedAt = 0;
-        return f;
     }
 }

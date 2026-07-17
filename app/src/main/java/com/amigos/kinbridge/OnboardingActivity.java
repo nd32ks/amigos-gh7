@@ -17,15 +17,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
 /**
- * First-run flow, shown whenever there is no signed-in user:
- *   step 1 — language, with an Indonesian/English rotating greeting
- *   step 2 — role, select a card then Continue (Back returns to step 1)
+ * First-run flow (MAIN_WORKFLOW STOP FLAG — mock role-select, zero credentials):
+ *   step 1 — language, Indonesian/English rotating greeting
+ *   step 2 — role-select: Ibu Sri (elder) · Dewi (guardian) · Sari (social worker)
+ *            — instant entry; only the elder path detours via the font step
  *   step 3 — seniors only: accessibility font-size slider with live preview
- * Closing the app without logging in (or logging out) lands back here.
+ * Closing the app (or logging out) lands back here at the language step.
  */
 public class OnboardingActivity extends AppCompatActivity {
 
@@ -33,13 +31,20 @@ public class OnboardingActivity extends AppCompatActivity {
     static final String KEY_ROLE = "user_role";
     static final String KEY_STEP = "onboarding_step";
     static final String ROLE_SENIOR = "senior";
-    static final String ROLE_VOLUNTEER = "volunteer";
+    static final String ROLE_GUARDIAN = "guardian";
+    static final String ROLE_CARE = "care";
 
-    /** Role-based home: seniors get the companion, volunteers the dashboard. */
+    /** Role-based home (used by SuccessActivity and role-select). */
     static Class<?> routeForRole(Context context) {
         String role = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                 .getString(KEY_ROLE, ROLE_SENIOR);
-        return ROLE_VOLUNTEER.equals(role) ? DashboardActivity.class : CompanionActivity.class;
+        if (ROLE_GUARDIAN.equals(role)) {
+            return DashboardActivity.class;
+        }
+        if (ROLE_CARE.equals(role)) {
+            return CarePanelActivity.class;
+        }
+        return CompanionActivity.class;
     }
 
     private static final long FADE_MS = 150;
@@ -69,11 +74,6 @@ public class OnboardingActivity extends AppCompatActivity {
         }
     };
 
-    private String selectedRole;
-    private boolean roleChosen;
-    private View optionSenior;
-    private View optionVolunteer;
-    private Button continueButton;
     private TextView fontPreview;
 
     @Override
@@ -85,21 +85,9 @@ public class OnboardingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // A live session skips the welcome flow entirely and goes straight to
-        // the role's home; without one, every cold start begins at language.
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            startActivity(new Intent(this, routeForRole(this)));
-            finish();
-            return;
-        }
-
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         setContentView(R.layout.activity_onboarding);
 
-        optionSenior = findViewById(R.id.optionSenior);
-        optionVolunteer = findViewById(R.id.optionVolunteer);
-        continueButton = findViewById(R.id.continueButton);
         fontPreview = findViewById(R.id.fontPreview);
 
         // Fresh entries (cold start, or right after logout) always begin at the
@@ -117,13 +105,16 @@ public class OnboardingActivity extends AppCompatActivity {
 
         findViewById(R.id.optionIndonesian).setOnClickListener(v -> chooseLanguage("id"));
         findViewById(R.id.optionEnglish).setOnClickListener(v -> chooseLanguage("en"));
-        optionSenior.setOnClickListener(v -> selectRole(ROLE_SENIOR));
-        optionVolunteer.setOnClickListener(v -> selectRole(ROLE_VOLUNTEER));
-        continueButton.setOnClickListener(v -> continueFromRole());
+
+        // Role-select: instant entry per profile (MAIN_WORKFLOW stop flag).
+        findViewById(R.id.optionSenior).setOnClickListener(v -> enterSenior());
+        findViewById(R.id.optionGuardian).setOnClickListener(v -> enterRole(ROLE_GUARDIAN));
+        findViewById(R.id.optionCare).setOnClickListener(v -> enterRole(ROLE_CARE));
+
         findViewById(R.id.backToLanguage).setOnClickListener(v -> backToLanguageStep());
         findViewById(R.id.backToRole).setOnClickListener(v ->
                 crossfadeSteps(findViewById(R.id.stepFont), findViewById(R.id.stepRole)));
-        findViewById(R.id.fontOkButton).setOnClickListener(v -> proceedToLogin());
+        findViewById(R.id.fontOkButton).setOnClickListener(v -> proceedToCompanion());
 
         SeekBar fontSlider = findViewById(R.id.fontSlider);
         fontSlider.setMax(FontScale.stepCount() - 1);
@@ -131,8 +122,8 @@ public class OnboardingActivity extends AppCompatActivity {
         fontSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Render the preview in raw pixels so it is not affected by the
-                // currently applied fontScale — it must show the NEW selection.
+                // Raw pixels: the preview must show the NEW selection, unaffected
+                // by the currently applied fontScale.
                 float density = getResources().getDisplayMetrics().density;
                 fontPreview.setTextSize(TypedValue.COMPLEX_UNIT_PX,
                         PREVIEW_BASE_SP * density * FontScale.scaleForStep(progress));
@@ -201,44 +192,32 @@ public class OnboardingActivity extends AppCompatActivity {
         }).start();
     }
 
-    // ---- Step 2: role selection ----
+    // ---- Step 2: role-select (instant entry) ----
 
-    private void selectRole(String role) {
+    private void enterSenior() {
         if (transitioning) {
             return;
         }
-        selectedRole = role;
-        optionSenior.setSelected(ROLE_SENIOR.equals(role));
-        optionVolunteer.setSelected(ROLE_VOLUNTEER.equals(role));
-        if (!roleChosen) {
-            // Do NOT gate on isClickable() here — setOnClickListener() silently
-            // makes the button clickable, which kept this fade from ever running.
-            roleChosen = true;
-            continueButton.animate().alpha(1f).setDuration(FADE_MS).start();
-        }
+        prefs.edit().putString(KEY_ROLE, ROLE_SENIOR).apply();
+        // Elders get the accessibility font step before the companion.
+        crossfadeSteps(findViewById(R.id.stepRole), findViewById(R.id.stepFont));
     }
 
-    private void continueFromRole() {
-        if (transitioning || selectedRole == null) {
+    private void enterRole(String role) {
+        if (transitioning) {
             return;
         }
-        prefs.edit().putString(KEY_ROLE, selectedRole).apply();
-        if (ROLE_SENIOR.equals(selectedRole)) {
-            // Seniors get the accessibility font step before login.
-            crossfadeSteps(findViewById(R.id.stepRole), findViewById(R.id.stepFont));
-        } else {
-            proceedToLogin();
-        }
+        transitioning = true;
+        prefs.edit().putString(KEY_ROLE, role).putInt(KEY_STEP, 1).apply();
+        fadeOut(() -> {
+            startActivity(new Intent(this, routeForRole(this)));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            finish();
+        });
     }
 
     private void backToLanguageStep() {
         prefs.edit().putInt(KEY_STEP, 1).apply();
-
-        selectedRole = null;
-        roleChosen = false;
-        optionSenior.setSelected(false);
-        optionVolunteer.setSelected(false);
-        continueButton.setAlpha(0.35f);
 
         findViewById(R.id.stepRole).setVisibility(View.GONE);
         View stepLanguage = findViewById(R.id.stepLanguage);
@@ -264,7 +243,7 @@ public class OnboardingActivity extends AppCompatActivity {
         });
     }
 
-    private void proceedToLogin() {
+    private void proceedToCompanion() {
         if (transitioning) {
             return;
         }
@@ -275,7 +254,7 @@ public class OnboardingActivity extends AppCompatActivity {
                 .putInt(KEY_STEP, 1)
                 .apply();
         fadeOut(() -> {
-            startActivity(new Intent(this, LoginActivity.class));
+            startActivity(new Intent(this, CompanionActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         });

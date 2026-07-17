@@ -16,6 +16,17 @@ import java.util.List;
 public class ScoringEngineTest {
 
     @Test
+    public void cri_gateA_example_is33_3() {
+        // GATE A (BUILDER_PROTOCOL §3) — tier1_alert_payload.json derivation:
+        // T1 miss (w=10,s=0) + T2 exact (w=3,s=1) + T3 exact (w=2,s=1) → 100×5/15
+        List<Event> events = Arrays.asList(
+                new Event(1, Verdict.MISS),
+                new Event(2, Verdict.EXACT),
+                new Event(3, Verdict.EXACT));
+        assertEquals(33.3, ScoringEngine.cri(events), 0.05);
+    }
+
+    @Test
     public void cri_weightsTiersAndCredits() {
         // T1 exact (10×1) + T2 partial (3×0.5) + T3 miss (2×0) → 100×11.5/15
         List<Event> events = Arrays.asList(
