@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kinbridge — A companion who listens</title>
+  <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Kinbridge">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <nav class="floating-nav" aria-label="Main navigation">
+    <a class="logo-lockup" href="#/home" aria-label="Kinbridge home">
+      <svg class="logo-mark" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+      </svg>
+      <span class="logo-word">Kinbridge</span>
+    </a>
+    <div class="nav-links">
+      <a href="#/home" data-nav="home" class="nav-link">Home</a>
+      <a href="#/chat" data-nav="chat" class="nav-link">Chat</a>
+      <a href="#/journal" data-nav="journal" class="nav-link">Journal</a>
+      <a href="#/wellness" data-nav="wellness" class="nav-link">Wellness</a>
+    </div>
+    <a href="#/chat" class="pill-cta nav-cta">Talk to Kin <span aria-hidden="true">→</span></a>
+  </nav>
+
+  <main>
+    <!-- ============ HOME ============ -->
+    <section id="view-home" class="view" hidden>
+      <div class="hero">
+        <svg class="sparkle sparkle-1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z"/></svg>
+        <svg class="sparkle sparkle-2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z"/></svg>
+        <svg class="sparkle sparkle-3" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/></svg>
+        <h1 class="display">Talk <span class="dot">•</span> Remember <span class="dot">•</span> Share</h1>
+        <p class="hero-sub">Kinbridge is a gentle companion for the elders in your life.
+        Every conversation is kept as a daily journal the family can look back on.</p>
+        <a href="#/chat" class="pill-cta hero-cta">Start a conversation <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="card-grid">
+        <article class="content-card">
+          <p class="card-label">Companion</p>
+          <h2 class="card-title">AI Companion Chat</h2>
+          <p class="card-body">Kin listens with patience, chats in the elder's own language,
+          and gently asks about their day.</p>
+          <div class="card-footer">
+            <a href="#/chat" class="pill-cta">Open <span aria-hidden="true">→</span></a>
+            <a href="#/chat" class="expand-btn" aria-label="Open chat">+</a>
+          </div>
+        </article>
+
+        <article class="content-card">
+          <p class="card-label">Journal</p>
+          <h2 class="card-title">Daily Journal</h2>
+          <p class="card-body">Everything the elder shares is saved to one journal per day —
+          moments, memories, and how they felt.</p>
+          <div class="card-footer">
+            <a href="#/journal" class="pill-cta">Read <span aria-hidden="true">→</span></a>
+            <a href="#/journal" class="expand-btn" aria-label="Open journal">+</a>
+          </div>
+        </article>
+
+        <article class="content-card">
+          <p class="card-label">Wellness</p>
+          <h2 class="card-title">Cognitive Wellness</h2>
+          <p class="card-body">Kind check-ins hidden inside conversation build a gentle
+          memory-health signal for the family. Never a test, never a diagnosis.</p>
+          <div class="card-footer">
+            <a href="#/wellness" class="pill-cta">View <span aria-hidden="true">→</span></a>
+            <a href="#/wellness" class="expand-btn" aria-label="Open wellness">+</a>
+          </div>
+        </article>
+
+        <article class="content-card card-soon">
+          <p class="card-label card-label-muted">Coming soon</p>
+          <h2 class="card-title">Feature Three</h2>
+          <p class="card-body">The next Kinbridge feature will appear here. This space is
+          reserved for it.</p>
+          <div class="card-footer">
+            <span class="pill-cta pill-disabled" aria-disabled="true">Soon</span>
+            <span class="expand-btn expand-disabled" aria-hidden="true">+</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ CHAT ============ -->
+    <section id="view-chat" class="view" hidden>
+      <header class="chat-header">
+        <h1 class="serif-heading">A chat with Kin</h1>
+        <p class="chat-header-sub">Take your time. Kin is listening.</p>
+      </header>
+      <div id="chat-messages" class="chat-messages" aria-live="polite"></div>
+      <p id="chat-status" class="chat-status" hidden></p>
+      <form id="chat-form" class="chat-composer">
+        <label for="chat-input" class="visually-hidden">Your message</label>
+        <textarea id="chat-input" class="chat-input" rows="1"
+          placeholder="Type here…" autocomplete="off" maxlength="4000"></textarea>
+        <button type="submit" id="chat-send" class="pill-cta send-btn">Send <span aria-hidden="true">→</span></button>
+      </form>
+    </section>
+
+    <!-- ============ JOURNAL ============ -->
+    <section id="view-journal" class="view" hidden>
+      <header class="journal-header">
+        <h1 class="serif-heading">Daily Journal</h1>
+        <p class="journal-header-sub">One page per day, written from your conversations with Kin.</p>
+      </header>
+      <div id="journal-days" class="journal-days"></div>
+      <article id="journal-page" class="journal-page" hidden>
+        <h2 id="journal-page-date" class="journal-page-date"></h2>
+        <pre id="journal-page-content" class="journal-page-content"></pre>
+      </article>
+      <p id="journal-empty" class="journal-empty" hidden>No journal pages yet.
+      Have a chat with Kin first — today's page will appear here.</p>
+    </section>
+    <!-- ============ WELLNESS ============ -->
+    <section id="view-wellness" class="view" hidden>
+      <header class="wellness-header">
+        <h1 class="serif-heading">Wellness signals</h1>
+        <p class="wellness-sub">Gentle check-ins woven into everyday conversation.
+        An early signal — never a diagnosis.</p>
+      </header>
+
+      <div id="wellness-alert" class="wellness-alert" role="status" hidden></div>
+
+      <div class="stat-row">
+        <div class="stat-tile">
+          <p class="stat-label">Recall index today</p>
+          <p class="stat-value" id="stat-index">–</p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-label">Check-ins today</p>
+          <p class="stat-value" id="stat-checks">–</p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-label">Smoothed trend</p>
+          <p class="stat-value" id="stat-trend">–</p>
+        </div>
+      </div>
+
+      <div class="wellness-card">
+        <h2 class="wellness-card-title">Recall index over time</h2>
+        <div id="trend-chart" class="trend-chart"></div>
+        <p id="trend-empty" class="wellness-empty" hidden>Not enough conversations yet —
+        the trend appears after Kin's first gentle check-ins.</p>
+      </div>
+
+      <div class="wellness-card">
+        <h2 class="wellness-card-title">Today's check-ins</h2>
+        <ul id="probe-list" class="probe-list"></ul>
+        <p id="probe-empty" class="wellness-empty" hidden>No check-ins yet today.
+        They happen quietly, about one every few chat turns.</p>
+      </div>
+
+      <div class="wellness-card">
+        <h2 class="wellness-card-title">What Kin gently checks</h2>
+        <ul id="facts-list" class="facts-list"></ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="divider-stripe" aria-hidden="true"><span></span><span></span><span></span></div>
+    <p class="footer-note">Kinbridge — made with care for the people who raised us.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
