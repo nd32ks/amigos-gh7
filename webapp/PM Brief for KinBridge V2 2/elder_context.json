@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "elder_0001",
+  "generated_at": "2026-07-17T09:00:00+07:00",
+  "locale": "id-ID",
+  "elder": {
+    "name": "Sri Rahayu Wijaya",
+    "preferred_address": "Ibu Sri",
+    "birth_year": 1952,
+    "sex": "F",
+    "city": "Gading Serpong, Tangerang",
+    "timezone": "Asia/Jakarta"
+  },
+  "escalation_contacts": [
+    {
+      "contact_id": "fam_01",
+      "name": "Dewi Wijaya",
+      "relation": "daughter",
+      "phone": "+62-812-5550-1188",
+      "push_device_token": "MOCK_FCM_TOKEN_DEWI_01",
+      "priority": 1
+    },
+    {
+      "contact_id": "fam_02",
+      "name": "Anton Wijaya",
+      "relation": "son",
+      "phone": "+62-811-5550-2277",
+      "push_device_token": "MOCK_FCM_TOKEN_ANTON_01",
+      "priority": 2
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "T1_SPOUSE_NAME",
+      "tier": 1,
+      "category": "core_identity.family",
+      "canonical_value": "Budi Wijaya",
+      "accepted_aliases": ["Budi", "Pak Budi", "Bapak Budi"],
+      "probe_templates_id": [
+        "Ngomong-ngomong Bu, bagaimana kabar suami Ibu hari ini?",
+        "Ibu biasanya minum kopi pagi sama siapa di rumah?"
+      ],
+      "probe_cooldown_hours": 24,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T1_CHILDREN_NAMES",
+      "tier": 1,
+      "category": "core_identity.family",
+      "canonical_value": ["Dewi Wijaya", "Anton Wijaya"],
+      "accepted_aliases": ["Dewi", "Anton"],
+      "probe_templates_id": [
+        "Anak-anak Ibu sudah telepon minggu ini? Siapa saja ya nama mereka?",
+        "Yang kemarin berkunjung itu putra atau putri Ibu? Siapa namanya?"
+      ],
+      "probe_cooldown_hours": 24,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T1_HOME_ADDRESS",
+      "tier": 1,
+      "category": "core_identity.location",
+      "canonical_value": "Cluster Alicante, Jalan Alicante Timur No. 12, Gading Serpong",
+      "accepted_aliases": ["Alicante", "Cluster Alicante", "Gading Serpong"],
+      "probe_templates_id": [
+        "Kalau grup senam mau kirim undangan, alamat rumah Ibu di mana ya?"
+      ],
+      "probe_cooldown_hours": 48,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T1_BIRTH_YEAR",
+      "tier": 1,
+      "category": "core_identity.self",
+      "canonical_value": "1952",
+      "accepted_aliases": ["tahun lima puluh dua", "52"],
+      "probe_templates_id": [
+        "Ibu lahir tahun berapa? Saya mau catat untuk kartu ulang tahun."
+      ],
+      "probe_cooldown_hours": 72,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T2_BREAKFAST_TODAY",
+      "tier": 2,
+      "category": "recent.meals",
+      "canonical_value": "bubur ayam",
+      "accepted_aliases": ["bubur"],
+      "valid_until": "2026-07-17T23:59:59+07:00",
+      "probe_templates_id": [
+        "Tadi pagi Ibu sarapan apa? Enak tidak?"
+      ],
+      "probe_cooldown_hours": 8,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T2_LAST_FAMILY_VISIT",
+      "tier": 2,
+      "category": "recent.family_events",
+      "canonical_value": "Dewi berkunjung hari Minggu lalu membawa martabak",
+      "accepted_aliases": ["Dewi datang hari Minggu", "Minggu kemarin Dewi ke rumah"],
+      "valid_until": "2026-07-24T23:59:59+07:00",
+      "probe_templates_id": [
+        "Kapan terakhir Dewi mampir ke rumah, Bu? Bawa oleh-oleh apa?"
+      ],
+      "probe_cooldown_hours": 24,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T2_MEDICATION_SCHEDULE",
+      "tier": 2,
+      "category": "recent.health_routine",
+      "canonical_value": "obat tekanan darah setiap pagi setelah sarapan",
+      "accepted_aliases": ["obat darah tinggi pagi hari", "amlodipine pagi"],
+      "valid_until": null,
+      "probe_templates_id": [
+        "Obat yang rutin Ibu minum itu diminum kapan ya?"
+      ],
+      "probe_cooldown_hours": 24,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T3_BELI_TOP_RATING",
+      "tier": 3,
+      "category": "preferences.dining",
+      "canonical_value": "memberi rating 5 bintang untuk omakase di ENA Dining lewat aplikasi Beli",
+      "accepted_aliases": ["omakase ENA", "restoran Jepang favorit di ENA", "rating lima bintang ENA"],
+      "probe_templates_id": [
+        "Restoran yang Ibu kasih bintang lima di aplikasi Beli itu yang mana ya?",
+        "Ibu kan suka makanan Jepang — tempat omakase favorit Ibu di mana?"
+      ],
+      "probe_cooldown_hours": 48,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T3_MUSIC_PREFERENCE",
+      "tier": 3,
+      "category": "preferences.music",
+      "canonical_value": "keroncong, terutama lagu Bengawan Solo",
+      "accepted_aliases": ["keroncong", "Bengawan Solo", "Gesang"],
+      "probe_templates_id": [
+        "Mau saya putarkan musik? Lagu kesukaan Ibu apa?"
+      ],
+      "probe_cooldown_hours": 48,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T3_GARDENING_HOBBY",
+      "tier": 3,
+      "category": "preferences.hobbies",
+      "canonical_value": "merawat anggrek bulan di teras belakang",
+      "accepted_aliases": ["anggrek", "anggrek bulan", "berkebun anggrek"],
+      "probe_templates_id": [
+        "Bagaimana kabar tanaman kesayangan Ibu? Sudah berbunga?"
+      ],
+      "probe_cooldown_hours": 24,
+      "last_probed_at": null
+    },
+    {
+      "fact_id": "T3_BADMINTON_FANDOM",
+      "tier": 3,
+      "category": "preferences.entertainment",
+      "canonical_value": "nonton bulu tangkis, penggemar ganda putra Indonesia",
+      "accepted_aliases": ["bulu tangkis", "badminton", "ganda putra"],
+      "probe_templates_id": [
+        "Minggu lalu ada pertandingan seru tidak, Bu? Olahraga apa yang Ibu suka tonton?"
+      ],
+      "probe_cooldown_hours": 48,
+      "last_probed_at": null
+    }
+  ],
+  "community_groups_mock": [
+    {
+      "group_id": "grp_01",
+      "name": "Klub Anggrek Gading Serpong",
+      "interest_keywords": ["anggrek", "berkebun", "tanaman"],
+      "distance_km": 1.2,
+      "meets": "Sabtu pagi, Taman Kota 2"
+    },
+    {
+      "group_id": "grp_02",
+      "name": "Keroncong Lansia Serpong",
+      "interest_keywords": ["keroncong", "musik", "Bengawan Solo"],
+      "distance_km": 2.8,
+      "meets": "Kamis sore, Balai Warga Alicante"
+    },
+    {
+      "group_id": "grp_03",
+      "name": "Komunitas Kuliner Senior BSD",
+      "interest_keywords": ["kuliner", "restoran", "omakase", "Beli"],
+      "distance_km": 4.5,
+      "meets": "Jumat siang, rotasi restoran"
+    }
+  ]
+}
