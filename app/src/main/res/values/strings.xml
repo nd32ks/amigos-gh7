@@ -54,11 +54,9 @@
     <string name="font_title">How big should your text be?</string>
     <string name="font_preview">Your conversations will look like this.</string>
     <string name="companion_greeting">Good morning, Ibu! How are you feeling today?</string>
+    <string name="kenang_offline">I\'m having trouble connecting — please try again in a moment.</string>
     <string name="chat_hint">Type your reply…</string>
     <string name="send">Send</string>
-    <string name="ack_exact">That\'s wonderful, Ibu!</string>
-    <string name="ack_warm">Thank you for sharing, Ibu.</string>
-    <string name="ack_neutral">I see. Tell me more about your day.</string>
     <string name="companion_thinking">Kenang is thinking…</string>
     <string name="pivot_t1">You seem a little tired today. Let\'s rest for a bit. Shall I call Dewi so you can hear her voice?</string>
     <string name="loading_elder">One moment…</string>
@@ -112,6 +110,9 @@
     <string name="completed_label">Done ✓</string>
     <string name="games_flavor">Ibu enjoyed a few guessing games this week</string>
     <string name="mic_desc">Speak</string>
+    <string name="diary_desc">Dictate a diary entry</string>
+    <string name="diary_listening">I\'m listening, Ibu — tell me about your day, and I\'ll write it in your diary.</string>
+    <string name="diary_saved">I\'ve written it in your diary, Ibu.</string>
     <string name="mic_permission">Microphone permission is needed for voice input</string>
     <string name="menu_companion">Kenang — companion</string>
     <string name="menu_dashboard">Dashboard</string>

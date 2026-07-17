@@ -54,11 +54,9 @@
     <string name="font_title">Seberapa besar teks untuk Anda?</string>
     <string name="font_preview">Percakapan Anda akan terlihat seperti ini.</string>
     <string name="companion_greeting">Selamat pagi, Ibu! Bagaimana kabar Ibu hari ini?</string>
+    <string name="kenang_offline">Koneksi sedang terganggu — coba lagi sebentar lagi ya.</string>
     <string name="chat_hint">Ketik jawaban Ibu…</string>
     <string name="send">Kirim</string>
-    <string name="ack_exact">Bagus sekali, Ibu!</string>
-    <string name="ack_warm">Terima kasih sudah bercerita, Ibu.</string>
-    <string name="ack_neutral">Begitu ya. Ceritakan lebih banyak tentang hari Ibu.</string>
     <string name="companion_thinking">Kenang sedang berpikir…</string>
     <string name="pivot_t1">Sepertinya Ibu sudah lelah hari ini. Kita istirahat dulu ya. Mau saya teleponkan Dewi supaya Ibu bisa dengar suaranya?</string>
     <string name="loading_elder">Sebentar…</string>
@@ -112,6 +110,9 @@
     <string name="completed_label">Selesai ✓</string>
     <string name="games_flavor">Ibu suka main tebak-tebakan minggu ini</string>
     <string name="mic_desc">Bicara</string>
+    <string name="diary_desc">Rekam catatan harian</string>
+    <string name="diary_listening">Kenang mendengarkan, Ibu — ceritakan hari Ibu, nanti Kenang catat di buku harian.</string>
+    <string name="diary_saved">Sudah Kenang catat di buku harian Ibu.</string>
     <string name="mic_permission">Izin mikrofon diperlukan untuk suara</string>
     <string name="menu_companion">Kenang — teman ngobrol</string>
     <string name="menu_dashboard">Dasbor</string>

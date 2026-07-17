@@ -88,6 +88,9 @@ public class CompanionActivity extends AppCompatActivity {
     private TextToSpeech tts;
     private SpeechRecognizer recognizer;
     private ImageView micButton;
+    private ImageView diaryButton;
+    /** True while the next STT result is a diary dictation, not a chat turn. */
+    private boolean diaryMode;
     private boolean ttsReady;
     private int utteranceCounter;
 
@@ -183,7 +186,7 @@ public class CompanionActivity extends AppCompatActivity {
         }
         // A reply can ack a pending reminder instead of answering a probe.
         if (reminderEngine != null && reminderEngine.onElderReply(text)) {
-            companionSay(getString(R.string.ack_exact));
+            chatWithKenang();
             return;
         }
         // Friend-intent consent flow (V2 §2.4)
@@ -192,7 +195,7 @@ public class CompanionActivity extends AppCompatActivity {
             if (isYes(text) && topFriendMatch != null) {
                 showFriendDialog(topFriendMatch);
             } else {
-                companionSay(getString(R.string.ack_neutral));
+                chatWithKenang();
             }
             return;
         }
@@ -221,7 +224,7 @@ public class CompanionActivity extends AppCompatActivity {
 
                     @Override
                     public void onError() {
-                        companionSay(getString(R.string.ack_neutral));
+                        companionText.setText(R.string.kenang_offline);
                     }
                 });
     }
@@ -412,7 +415,7 @@ public class CompanionActivity extends AppCompatActivity {
         // MASTER_CHECKLIST §5: a cocok_kata T1 miss never auto-fires acute —
         // a mis-tap is not "couldn't recall her husband". Warm ack, no pivot.
         if (cocokKata && fact.tier == 1 && verdict == Verdict.MISS) {
-            companionSay(getString(R.string.ack_warm));
+            chatWithKenang();
             return;
         }
 
@@ -439,7 +442,7 @@ public class CompanionActivity extends AppCompatActivity {
                 return;
             case WARNING:
                 repository.saveAlert("warning", getString(R.string.alert_warning_text), "");
-                companionSay(getString(R.string.ack_warm));
+                chatWithKenang();
                 return;
             default:
                 // Never correct her — warm AI reply and move on (prompts.md §1).
