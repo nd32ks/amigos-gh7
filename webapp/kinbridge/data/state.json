@@ -1,0 +1,279 @@
+{
+  "trend": [
+    {
+      "date": "2026-06-16",
+      "cri": 80.4,
+      "ewma": 81.5,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-17",
+      "cri": 81.7,
+      "ewma": 81.6,
+      "probes": 5
+    },
+    {
+      "date": "2026-06-18",
+      "cri": 82,
+      "ewma": 81.7,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-19",
+      "cri": 83.4,
+      "ewma": 82.2,
+      "probes": 5
+    },
+    {
+      "date": "2026-06-20",
+      "cri": 84.1,
+      "ewma": 82.8,
+      "probes": 5
+    },
+    {
+      "date": "2026-06-21",
+      "cri": 83.9,
+      "ewma": 83.1,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-22",
+      "cri": 83.4,
+      "ewma": 83.2,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-23",
+      "cri": 84.3,
+      "ewma": 83.5,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-24",
+      "cri": 85.6,
+      "ewma": 84.2,
+      "probes": 5
+    },
+    {
+      "date": "2026-06-25",
+      "cri": 86.2,
+      "ewma": 84.8,
+      "probes": 5
+    },
+    {
+      "date": "2026-06-26",
+      "cri": 87.3,
+      "ewma": 85.5,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-27",
+      "cri": 85.7,
+      "ewma": 85.6,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-28",
+      "cri": 85.8,
+      "ewma": 85.6,
+      "probes": 4
+    },
+    {
+      "date": "2026-06-29",
+      "cri": 87.2,
+      "ewma": 86.1,
+      "probes": 3
+    },
+    {
+      "date": "2026-06-30",
+      "cri": 87,
+      "ewma": 86.4,
+      "probes": 4
+    },
+    {
+      "date": "2026-07-01",
+      "cri": 85.5,
+      "ewma": 86.1,
+      "probes": 3
+    },
+    {
+      "date": "2026-07-02",
+      "cri": 86.2,
+      "ewma": 86.1,
+      "probes": 3
+    },
+    {
+      "date": "2026-07-03",
+      "cri": 85.1,
+      "ewma": 85.8,
+      "probes": 3
+    },
+    {
+      "date": "2026-07-04",
+      "cri": 84.5,
+      "ewma": 85.4,
+      "probes": 4
+    },
+    {
+      "date": "2026-07-05",
+      "cri": 84.7,
+      "ewma": 85.2,
+      "probes": 3
+    },
+    {
+      "date": "2026-07-06",
+      "cri": 85.8,
+      "ewma": 85.4,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-07",
+      "cri": 87.3,
+      "ewma": 86,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-08",
+      "cri": 87.8,
+      "ewma": 86.5,
+      "probes": 4
+    },
+    {
+      "date": "2026-07-09",
+      "cri": 87.6,
+      "ewma": 86.8,
+      "probes": 4
+    },
+    {
+      "date": "2026-07-10",
+      "cri": 87.3,
+      "ewma": 87,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-11",
+      "cri": 85.1,
+      "ewma": 86.4,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-12",
+      "cri": 86.4,
+      "ewma": 86.4,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-13",
+      "cri": 85.5,
+      "ewma": 86.1,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-14",
+      "cri": 86.1,
+      "ewma": 86.1,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-15",
+      "cri": 60,
+      "ewma": 78.3,
+      "probes": 5
+    },
+    {
+      "date": "2026-07-17",
+      "cri": 33.3,
+      "ewma": 48.8,
+      "probes": 3
+    }
+  ],
+  "events": [
+    {
+      "ts": "2026-07-17T09:59:29.981Z",
+      "fact_id": "T1_SPOUSE_NAME",
+      "tier": 1,
+      "verdict": "miss",
+      "raw_points": -10,
+      "cri_credit": 0,
+      "humanized": "Couldn't recall Budi Wijaya"
+    },
+    {
+      "ts": "2026-07-17T09:59:29.981Z",
+      "fact_id": "T3_GARDENING_HOBBY",
+      "tier": 3,
+      "verdict": "exact",
+      "raw_points": 1,
+      "cri_credit": 1,
+      "humanized": "Remembered merawat anggrek bulan di teras belakang"
+    },
+    {
+      "ts": "2026-07-17T09:59:29.981Z",
+      "fact_id": "T2_BREAKFAST_TODAY",
+      "tier": 2,
+      "verdict": "exact",
+      "raw_points": 1,
+      "cri_credit": 1,
+      "humanized": "Remembered bubur ayam"
+    },
+    {
+      "ts": "2026-07-17T09:45:53.457Z",
+      "fact_id": "T1_SPOUSE_NAME",
+      "tier": 1,
+      "verdict": "miss",
+      "raw_points": -10,
+      "cri_credit": 0,
+      "humanized": "Couldn't recall Budi Wijaya"
+    },
+    {
+      "ts": "2026-07-17T09:45:53.457Z",
+      "fact_id": "T3_GARDENING_HOBBY",
+      "tier": 3,
+      "verdict": "exact",
+      "raw_points": 1,
+      "cri_credit": 1,
+      "humanized": "Remembered merawat anggrek bulan di teras belakang"
+    },
+    {
+      "ts": "2026-07-17T09:45:53.457Z",
+      "fact_id": "T2_BREAKFAST_TODAY",
+      "tier": 2,
+      "verdict": "exact",
+      "raw_points": 1,
+      "cri_credit": 1,
+      "humanized": "Remembered bubur ayam"
+    },
+    {
+      "ts": "2026-07-17T09:45:18.232Z",
+      "fact_id": "T1_SPOUSE_NAME",
+      "tier": 1,
+      "verdict": "miss",
+      "raw_points": -10,
+      "cri_credit": 0,
+      "humanized": "Couldn't recall Budi Wijaya"
+    },
+    {
+      "ts": "2026-07-17T09:45:18.232Z",
+      "fact_id": "T3_GARDENING_HOBBY",
+      "tier": 3,
+      "verdict": "exact",
+      "raw_points": 1,
+      "cri_credit": 1,
+      "humanized": "Remembered merawat anggrek bulan di teras belakang"
+    },
+    {
+      "ts": "2026-07-17T09:45:18.232Z",
+      "fact_id": "T2_BREAKFAST_TODAY",
+      "tier": 2,
+      "verdict": "exact",
+      "raw_points": 1,
+      "cri_credit": 1,
+      "humanized": "Remembered bubur ayam"
+    }
+  ],
+  "warnings": [],
+  "today": {
+    "sessions": 5,
+    "minutes_engaged": 23,
+    "probes_scored": 14
+  }
+}
