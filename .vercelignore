@@ -1,0 +1,11 @@
+# Leftover directories from other branches — not part of the app
+apk/
+webapp/
+
+# The video is demo-only and too large to ship
+/20260717_181036.mp4
+/public/20260717_181036.mp4
+
+# Local runtime data
+logs/
+.env
