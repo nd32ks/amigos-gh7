@@ -797,13 +797,27 @@ public class CompanionActivity extends AppCompatActivity {
         });
 
         micButton = findViewById(R.id.micButton);
+        diaryButton = findViewById(R.id.diaryButton);
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
             micButton.setVisibility(View.GONE);
+            diaryButton.setVisibility(View.GONE);
             return;
         }
         micButton.setOnClickListener(v -> {
+            diaryMode = false;
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
                     == PackageManager.PERMISSION_GRANTED) {
+                startListening();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.RECORD_AUDIO}, 77);
+            }
+        });
+        diaryButton.setOnClickListener(v -> {
+            diaryMode = true;
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                companionText.setText(R.string.diary_listening);
                 startListening();
             } else {
                 ActivityCompat.requestPermissions(this,
