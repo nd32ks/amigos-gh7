@@ -1,0 +1,66 @@
+flowchart TB
+    RS["Role Select<br/>(no auth)"]
+
+    subgraph CLIENTS["Surfaces"]
+        E["👵 Elder Client<br/>voice-first · GuidedQuestion<br/>zero forms"]
+        G["👩 Guardian Dashboard<br/>trend · diary · adherence<br/>delegation · id/en"]
+        SW["🩺 Social Worker /care<br/>caseload · visit notes<br/>permission-filtered"]
+    end
+
+    RS --> E
+    RS --> G
+    RS --> SW
+
+    subgraph VOICE["Voice Layer"]
+        K["🤖 Kenang<br/>gpt-4o-realtime<br/>STT+LLM+TTS · mark_probe fn"]
+    end
+
+    subgraph SERVER["Server (Next.js, in-memory)"]
+        SCHED["Probe Scheduler<br/>conversational + game probes<br/>cooldowns · 1:1 alternation"]
+        AGENT["Workflow Eval Agent<br/>🤖 Judge gpt-4o-mini temp0<br/>CRI · EWMA · escalation<br/>(deterministic math)"]
+        CARE["Adjusted Care<br/>pivot · game difficulty ↓"]
+        DIARY["Diary Generator<br/>🤖 gpt-4o session-end<br/>bilingual summary + stories"]
+        MATCH["Match Engine<br/>friends (deterministic)<br/>groups (keywords)"]
+        REM["Reminder / Routine Engine<br/>chains · acks · adherence"]
+        DELEG["Delegation Queue<br/>elder → guardian"]
+    end
+
+    subgraph DATA["Data Layer (JSON, no DB)"]
+        CTX["elder_context.json"]
+        HP["health_profile.json<br/>(private, derived-only)"]
+        RJ["reminders / routines / games"]
+        DJ["diary + pending_facts"]
+        PD["people_directory / care_worker"]
+    end
+
+    OB["Onboarding Wizard<br/>🤖 Context-Dump Extractor gpt-4o"]
+
+    E <-->|"audio / text"| K
+    K -->|"transcript + probe tags"| AGENT
+    SCHED --> K
+    AGENT -->|"directives: pivot · reminders · games"| K
+    AGENT -->|"trend signal"| CARE
+    CARE --> SCHED
+    AGENT -->|"WS: alerts · trend"| G
+    AGENT -->|"filtered view"| SW
+    DIARY --> G
+    MATCH --> E
+    MATCH --> G
+    REM --> K
+    REM -->|"adherence"| G
+    DELEG <--> E
+    DELEG <--> G
+    SW -->|"visit notes"| G
+
+    OB --> CTX
+    OB --> HP
+    OB --> RJ
+    CTX --> SCHED
+    CTX --> AGENT
+    HP -->|"behavioral directives only"| K
+    HP --> MATCH
+    RJ --> REM
+    RJ --> SCHED
+    AGENT --> DJ
+    DJ --> DIARY
+    PD --> MATCH

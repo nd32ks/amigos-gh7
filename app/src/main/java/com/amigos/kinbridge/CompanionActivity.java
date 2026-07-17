@@ -48,9 +48,19 @@ public class CompanionActivity extends AppCompatActivity {
     private final ElderRepository repository = new ElderRepository();
     private final List<Event> sessionEvents = new ArrayList<>();
     private final Set<String> shownMatches = new HashSet<>();
+    private final List<String> elderTurns = new ArrayList<>();
+    private final Set<Integer> probeAnswerIndices = new HashSet<>();
 
     private ElderProfile profile;
     private ElderFact armedProbe;
+    private ReminderEngine reminderEngine;
+
+    // Find My Friends (V2 §2) + guided choice (V2.2 §C/D)
+    private com.amigos.kinbridge.friends.FriendMatcher.Match topFriendMatch;
+    private boolean friendAsked;
+    private boolean awaitingFriendConsent;
+    private View guidedRow;
+    private View inputRow;
     private Verdict forcedVerdict;
     private double forcedConfidence;
     private int turnsSinceProbe;
@@ -96,6 +106,17 @@ public class CompanionActivity extends AppCompatActivity {
         });
         companionText.setOnClickListener(v -> onDemoTap());
 
+        guidedRow = findViewById(R.id.guidedRow);
+        inputRow = findViewById(R.id.inputRow);
+        findViewById(R.id.guidedYes).setOnClickListener(v -> answerGuided(false));
+        findViewById(R.id.guidedNo).setOnClickListener(v -> answerGuided(false));
+        findViewById(R.id.guidedUnknown).setOnClickListener(v -> answerGuided(false));
+        findViewById(R.id.guidedDelegate).setOnClickListener(v -> answerGuided(true));
+
+        reminderEngine = new ReminderEngine(this, this::companionSay);
+        reminderEngine.start();
+        loadFriends();
+
         repository.loadProfile(this, new ElderRepository.ProfileCallback() {
             @Override
             public void onLoaded(ElderProfile loaded) {
@@ -123,15 +144,189 @@ public class CompanionActivity extends AppCompatActivity {
 
     private void onElderTurn(String text) {
         addTranscript(true, text);
+        elderTurns.add(text);
+
+        // Elder voice command (V2.1 §1.3): Kenang reads yesterday's diary aloud.
+        if (text.toLowerCase().contains("buku harian")) {
+            repository.getLatestDiarySummary((summaryId, summaryEn) -> {
+                String summary = indonesian() ? summaryId : summaryEn;
+                companionSay(summary != null ? summary : getString(R.string.diary_empty));
+            });
+            return;
+        }
+
         scanForMatch(text);
 
         if (armedProbe != null) {
             evaluate(text, armedProbe);
-        } else {
-            turnsSinceProbe++;
-            companionSay(getString(R.string.ack_neutral));
-            maybeProbe();
+            return;
         }
+        // A reply can ack a pending reminder instead of answering a probe.
+        if (reminderEngine != null && reminderEngine.onElderReply(text)) {
+            companionSay(getString(R.string.ack_exact));
+            return;
+        }
+        // Friend-intent consent flow (V2 §2.4)
+        if (awaitingFriendConsent) {
+            awaitingFriendConsent = false;
+            if (isYes(text) && topFriendMatch != null) {
+                showFriendDialog(topFriendMatch);
+            } else {
+                companionSay(getString(R.string.ack_neutral));
+            }
+            return;
+        }
+        if (!friendAsked && topFriendMatch != null && hasFriendIntent(text)) {
+            friendAsked = true;
+            awaitingFriendConsent = true;
+            companionSay(getString(R.string.friend_ask));
+            return;
+        }
+        turnsSinceProbe++;
+        companionSay(getString(R.string.ack_neutral));
+        maybeProbe();
+    }
+
+    private boolean hasFriendIntent(String text) {
+        String lower = text.toLowerCase();
+        String[] intents = {"teman sma", "teman lama", "teman sekolah", "teman kerja",
+                "teman kantor", "dulu di bri", "old friend", "school friend"};
+        for (String intent : intents) {
+            if (lower.contains(intent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isYes(String text) {
+        String lower = text.toLowerCase();
+        String[] yes = {"ya", "iya", "mau", "boleh", "yes", "sure", "ok"};
+        for (String word : yes) {
+            if (lower.contains(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void loadFriends() {
+        try {
+            String deltaJson = readAsset("v2/profile_delta.json");
+            String directoryJson = readAsset("v2/people_directory.json");
+            List<com.amigos.kinbridge.friends.FriendMatcher.HistoryEntry> elderHistory =
+                    new java.util.ArrayList<>();
+            org.json.JSONObject delta = new org.json.JSONObject(deltaJson);
+            addHistory(elderHistory, delta.optJSONArray("education_history"), "sma");
+            addHistory(elderHistory, delta.optJSONArray("work_history"), "work");
+
+            List<com.amigos.kinbridge.friends.FriendMatcher.Person> people =
+                    new java.util.ArrayList<>();
+            org.json.JSONArray arr = new org.json.JSONArray(directoryJson);
+            for (int i = 0; i < arr.length(); i++) {
+                org.json.JSONObject o = arr.getJSONObject(i);
+                com.amigos.kinbridge.friends.FriendMatcher.Person p =
+                        new com.amigos.kinbridge.friends.FriendMatcher.Person();
+                p.personId = o.getString("person_id");
+                p.name = o.getString("name");
+                p.city = o.optString("city");
+                p.distanceKm = o.optDouble("distance_km");
+                p.onPlatform = o.optBoolean("on_platform");
+                addHistory(p.history, o.optJSONArray("education_history"), "sma");
+                addHistory(p.history, o.optJSONArray("work_history"), "work");
+                people.add(p);
+            }
+            List<com.amigos.kinbridge.friends.FriendMatcher.Match> matches =
+                    com.amigos.kinbridge.friends.FriendMatcher.match(elderHistory, people);
+            if (!matches.isEmpty()) {
+                topFriendMatch = matches.get(0);
+            }
+        } catch (Exception e) {
+            android.util.Log.w("Companion", "friends load failed", e);
+        }
+    }
+
+    private void addHistory(List<com.amigos.kinbridge.friends.FriendMatcher.HistoryEntry> out,
+                            org.json.JSONArray arr, String type) throws org.json.JSONException {
+        if (arr == null) {
+            return;
+        }
+        for (int i = 0; i < arr.length(); i++) {
+            org.json.JSONObject o = arr.getJSONObject(i);
+            org.json.JSONArray years = o.getJSONArray("years");
+            String institution = o.has("institution") ? o.getString("institution") : o.getString("employer");
+            out.add(new com.amigos.kinbridge.friends.FriendMatcher.HistoryEntry(
+                    institution, type, years.getInt(0), years.getInt(1)));
+        }
+    }
+
+    private void showFriendDialog(com.amigos.kinbridge.friends.FriendMatcher.Match match) {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_friend);
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        String[] parts = match.person.name.split(" ");
+        StringBuilder initials = new StringBuilder();
+        for (String part : parts) {
+            if (!part.isEmpty() && initials.length() < 2) {
+                initials.append(Character.toUpperCase(part.charAt(0)));
+            }
+        }
+        ((TextView) dialog.findViewById(R.id.friendInitials)).setText(initials.toString());
+        ((TextView) dialog.findViewById(R.id.friendName)).setText(match.person.name);
+        int gradYear = 0;
+        for (com.amigos.kinbridge.friends.FriendMatcher.HistoryEntry h : match.person.history) {
+            if ("sma".equals(h.type) && h.institution.equals(match.sharedInstitution)) {
+                gradYear = h.toYear % 100;
+            }
+        }
+        ((TextView) dialog.findViewById(R.id.friendLine)).setText(getString(
+                R.string.friend_card_line, match.sharedInstitution,
+                String.format(java.util.Locale.US, "%02d", gradYear), match.person.distanceKm));
+        dialog.findViewById(R.id.friendConnect).setOnClickListener(v -> {
+            repository.saveDelegation("friend_intro",
+                    match.person.name,
+                    match.sharedInstitution + " · " + match.person.city);
+            Toast.makeText(this, R.string.friend_notified, Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    // ---- Guided choice (V2.2 §C/D) ----
+
+    private void runGuidedQuestionScenario() {
+        companionSay(getString(R.string.guided_komorbid_q));
+        inputRow.setVisibility(View.GONE);
+        guidedRow.setVisibility(View.VISIBLE);
+    }
+
+    private void answerGuided(boolean delegated) {
+        guidedRow.setVisibility(View.GONE);
+        inputRow.setVisibility(View.VISIBLE);
+        if (delegated) {
+            repository.saveDelegation("question",
+                    getString(R.string.guided_komorbid_q), "Tanya Dewi saja ya.");
+            companionSay(getString(R.string.guided_delegated));
+        } else {
+            companionSay(getString(R.string.guided_noted));
+        }
+    }
+
+    private String readAsset(String name) throws Exception {
+        java.io.InputStream in = getAssets().open(name);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            out.write(buf, 0, n);
+        }
+        in.close();
+        return new String(out.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
     }
 
     private void evaluate(String reply, ElderFact fact) {
@@ -148,6 +343,7 @@ public class CompanionActivity extends AppCompatActivity {
         }
 
         sessionEvents.add(new Event(fact.tier, verdict));
+        probeAnswerIndices.add(elderTurns.size() - 1); // probes are scoring data, not stories
         repository.saveEvent(fact.tier, verdict.name().toLowerCase(),
                 ScoringEngine.rawPoints(verdict, fact.tier),
                 ScoringEngine.credit(verdict), eventLabel(verdict, fact));
@@ -298,7 +494,7 @@ public class CompanionActivity extends AppCompatActivity {
         demoTaps++;
         if (demoTaps >= 3 && profile != null) {
             demoTaps = 0;
-            int scenario = demoScenario % 3;
+            int scenario = demoScenario % 4;
             demoScenario++;
             switch (scenario) {
                 case 0:
@@ -307,8 +503,11 @@ public class CompanionActivity extends AppCompatActivity {
                 case 1:
                     runT2WarningScenario();
                     break;
-                default:
+                case 2:
                     runMatchScenario();
+                    break;
+                default:
+                    runGuidedQuestionScenario();
             }
         }
     }
@@ -379,6 +578,9 @@ public class CompanionActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if (reminderEngine != null) {
+            reminderEngine.stop();
+        }
         if (!sessionClosed && profile != null
                 && sessionEvents.size() >= ScoringEngine.MIN_PROBES) {
             sessionClosed = true;
@@ -386,6 +588,83 @@ public class CompanionActivity extends AppCompatActivity {
             double ewma = ScoringEngine.ewma(cri, profile.prevEwma);
             repository.saveTrendPoint(cri, ewma, sessionEvents.size());
         }
+        if (!elderTurns.isEmpty()) {
+            generateDiary();
+        }
+    }
+
+    /**
+     * Session-end diary entry (V2.1 §1.2 — one merged generation step):
+     * bilingual summary + verbatim stories, probe answers excluded. Mood is
+     * derived, never asked. Love-only surface: no scores, no verdicts.
+     */
+    private void generateDiary() {
+        int exactCount = 0;
+        boolean t1Miss = false;
+        for (Event e : sessionEvents) {
+            if (e.verdict == Verdict.EXACT) {
+                exactCount++;
+            }
+            if (e.tier == 1 && e.verdict == Verdict.MISS) {
+                t1Miss = true;
+            }
+        }
+
+        String medKey = "rem_rem_med_01_" + new java.text.SimpleDateFormat("yyyyMMdd",
+                java.util.Locale.US).format(new java.util.Date());
+        boolean medAcked = "ACKED".equals(getSharedPreferences("elder_state", MODE_PRIVATE)
+                .getString(medKey, ""));
+
+        StringBuilder id = new StringBuilder("Hari ini Ibu mengobrol dengan Kenang");
+        StringBuilder en = new StringBuilder("Today Ibu chatted with Kenang");
+        if (exactCount > 0) {
+            id.append(" dan berbagi banyak kenangan");
+            en.append(" and shared plenty of memories");
+        }
+        if (medAcked) {
+            id.append(". Ibu minum obat pagi tepat waktu.");
+            en.append(". She took her morning medicine on time.");
+        } else {
+            id.append(".");
+            en.append(".");
+        }
+
+        String mood = t1Miss ? "lelah" : exactCount > 0 ? "ceria" : "tenang";
+
+        List<Map<String, Object>> stories = new ArrayList<>();
+        for (int i = 0; i < elderTurns.size(); i++) {
+            if (probeAnswerIndices.contains(i)) {
+                continue; // scoring data stays out of the diary
+            }
+            String turn = elderTurns.get(i);
+            String lower = turn.toLowerCase();
+            if (turn.length() >= 40 && (lower.contains("waktu") || lower.contains("dulu")
+                    || lower.contains("tahun") || lower.contains("when i") || lower.contains("used to"))) {
+                Map<String, Object> story = new HashMap<>();
+                String[] words = turn.split("\\s+");
+                StringBuilder title = new StringBuilder();
+                for (int w = 0; w < Math.min(6, words.length); w++) {
+                    if (w > 0) {
+                        title.append(' ');
+                    }
+                    title.append(words[w]);
+                }
+                title.append("…");
+                story.put("title", title.toString());
+                story.put("quote", turn); // verbatim, never translated (V2.1 §1.1)
+                stories.add(story);
+            }
+        }
+
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("date", new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date()));
+        entry.put("summaryId", id.toString());
+        entry.put("summaryEn", en.toString());
+        entry.put("moodTag", mood);
+        entry.put("stories", stories);
+        entry.put("sessions", 1);
+        repository.saveDiaryEntry(entry);
     }
 
     // ---- UI helpers ----

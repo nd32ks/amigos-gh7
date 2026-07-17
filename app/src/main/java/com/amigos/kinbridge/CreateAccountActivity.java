@@ -29,6 +29,10 @@ public class CreateAccountActivity extends AppCompatActivity {
     private TextView emailError;
     private TextView passwordError;
     private TextView confirmPasswordError;
+    private TextView genderError;
+    private TextView genderFemale;
+    private TextView genderMale;
+    private String selectedGender;
     private Button createAccountButton;
 
     @Override
@@ -44,12 +48,25 @@ public class CreateAccountActivity extends AppCompatActivity {
         emailError = findViewById(R.id.emailError);
         passwordError = findViewById(R.id.passwordError);
         confirmPasswordError = findViewById(R.id.confirmPasswordError);
+        genderError = findViewById(R.id.genderError);
+        genderFemale = findViewById(R.id.genderFemale);
+        genderMale = findViewById(R.id.genderMale);
+
+        genderFemale.setOnClickListener(v -> selectGender("female"));
+        genderMale.setOnClickListener(v -> selectGender("male"));
 
         createAccountButton = findViewById(R.id.createAccountButton);
         createAccountButton.setOnClickListener(v -> attemptCreateAccount());
 
         TextView signInLink = findViewById(R.id.signInLink);
         signInLink.setOnClickListener(v -> finish());
+    }
+
+    private void selectGender(String gender) {
+        selectedGender = gender;
+        genderFemale.setSelected("female".equals(gender));
+        genderMale.setSelected("male".equals(gender));
+        genderError.setVisibility(View.GONE);
     }
 
     private void attemptCreateAccount() {
@@ -62,18 +79,20 @@ public class CreateAccountActivity extends AppCompatActivity {
         boolean emailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches();
         boolean passwordValid = password.length() >= 8;
         boolean confirmValid = confirmPassword.equals(password) && passwordValid;
+        boolean genderValid = selectedGender != null;
 
         setFieldError(nameInput, nameError, !nameValid);
         setFieldError(emailInput, emailError, !emailValid);
         setFieldError(passwordInput, passwordError, !passwordValid);
         setFieldError(confirmPasswordInput, confirmPasswordError, !confirmValid);
+        genderError.setVisibility(genderValid ? View.GONE : View.VISIBLE);
 
-        if (!nameValid || !emailValid || !passwordValid || !confirmValid) {
+        if (!nameValid || !emailValid || !passwordValid || !confirmValid || !genderValid) {
             return;
         }
 
         setLoading(true);
-        userRepository.createAccount(name, email, password, new UserRepository.Callback() {
+        userRepository.createAccount(name, selectedGender, email, password, new UserRepository.Callback() {
             @Override
             public void onSuccess(com.google.firebase.auth.FirebaseUser user) {
                 Intent intent = new Intent(CreateAccountActivity.this, SuccessActivity.class);

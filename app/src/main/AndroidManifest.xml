@@ -42,6 +42,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".OnboardWizardActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".SuccessActivity"
             android:exported="false" />
     </application>

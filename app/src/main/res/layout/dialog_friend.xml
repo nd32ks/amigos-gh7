@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Old-friend card (V2 §2.4): guardian-mediated intro, never a direct DM -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/friendInitials"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_check_circle"
+            android:gravity="center"
+            android:textColor="@color/ink_black"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/friendName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cormorant_garamond_light"
+                android:letterSpacing="-0.015"
+                android:textColor="@color/ink_black"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/friendLine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/slate_gray"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/friendConnect"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_button_pill"
+        android:stateListAnimator="@null"
+        android:text="@string/friend_connect"
+        android:textAllCaps="false"
+        android:textColor="@color/pure_white"
+        android:textSize="15sp" />
+</LinearLayout>

@@ -33,10 +33,10 @@ public class UserRepository {
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public void createAccount(String name, String email, String password, Callback callback) {
+    public void createAccount(String name, String gender, String email, String password, Callback callback) {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> {
-                    ensureUserDocument(result.getUser(), name);
+                    ensureUserDocument(result.getUser(), name, gender);
                     callback.onSuccess(result.getUser());
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
@@ -45,7 +45,7 @@ public class UserRepository {
     public void signIn(String email, String password, Callback callback) {
         auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> {
-                    ensureUserDocument(result.getUser(), null);
+                    ensureUserDocument(result.getUser(), null, null);
                     callback.onSuccess(result.getUser());
                 })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
@@ -60,26 +60,30 @@ public class UserRepository {
      * database not provisioned yet), a merge write is queued instead — Firestore
      * persists it locally and syncs once the backend is reachable.
      */
-    private void ensureUserDocument(FirebaseUser user, String name) {
+    private void ensureUserDocument(FirebaseUser user, String name, String gender) {
         DocumentReference ref = db.collection("users").document(user.getUid());
         ref.get().addOnSuccessListener(snapshot -> {
             if (!snapshot.exists()) {
-                ref.set(userData(user, name, true))
+                ref.set(userData(user, name, gender, true))
                         .addOnFailureListener(e -> Log.w(TAG, "user doc write failed", e));
             }
         }).addOnFailureListener(e -> {
             Log.w(TAG, "user doc read failed (offline?), queueing merge write", e);
-            ref.set(userData(user, name, name != null), SetOptions.merge())
+            ref.set(userData(user, name, gender, name != null), SetOptions.merge())
                     .addOnFailureListener(e2 -> Log.w(TAG, "queued user doc write failed", e2));
         });
     }
 
-    private Map<String, Object> userData(FirebaseUser user, String name, boolean withCreatedAt) {
+    private Map<String, Object> userData(FirebaseUser user, String name, String gender,
+                                         boolean withCreatedAt) {
         Map<String, Object> data = new HashMap<>();
         data.put("uid", user.getUid());
         data.put("email", user.getEmail());
         if (name != null && !name.isEmpty()) {
             data.put("name", name);
+        }
+        if (gender != null && !gender.isEmpty()) {
+            data.put("gender", gender);
         }
         if (withCreatedAt) {
             data.put("createdAt", FieldValue.serverTimestamp());

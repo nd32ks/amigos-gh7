@@ -61,6 +61,24 @@ public class ElderRepository {
                 facts.add(f);
             }
 
+            // Merge guardian-added facts from the context-dump wizard (V2 §5/§7)
+            try {
+                JSONArray custom = new JSONArray(state.getString("custom_facts_json", "[]"));
+                for (int i = 0; i < custom.length(); i++) {
+                    JSONObject o = custom.getJSONObject(i);
+                    ElderFact f = new ElderFact();
+                    f.factId = o.getString("factId");
+                    f.tier = o.getInt("tier");
+                    f.category = o.optString("category");
+                    f.canonicalValues.add(o.getString("canonical"));
+                    f.probeTemplatesId.add(o.optString("probe"));
+                    f.cooldownHours = 24;
+                    facts.add(f);
+                }
+            } catch (Exception ignored) {
+                // Corrupt custom facts cache must never break the profile load
+            }
+
             List<ElderProfile.CommunityGroup> groups = new ArrayList<>();
             JSONArray groupsArr = root.optJSONArray("community_groups_mock");
             if (groupsArr != null) {
@@ -184,6 +202,77 @@ public class ElderRepository {
         alert.put("title", title);
         alert.put("body", body);
         db.collection(ELDERS).document(ELDER_ID).collection("alerts").add(alert);
+    }
+
+    // ---- Delegations: friend intros + guided-question tasks (V2 §2.5, V2.2 §D) ----
+
+    public void saveDelegation(String kind, String title, String body) {
+        Map<String, Object> delegation = new HashMap<>();
+        delegation.put("ts", System.currentTimeMillis());
+        delegation.put("kind", kind);
+        delegation.put("title", title);
+        delegation.put("body", body);
+        delegation.put("status", "pending");
+        db.collection(ELDERS).document(ELDER_ID).collection("delegations").add(delegation);
+    }
+
+    public void completeDelegation(String docId) {
+        db.collection(ELDERS).document(ELDER_ID).collection("delegations")
+                .document(docId).update("status", "completed");
+    }
+
+    public ListenerRegistration listenDelegations(DelegationsListener listener) {
+        return db.collection(ELDERS).document(ELDER_ID).collection("delegations")
+                .orderBy("ts", Query.Direction.DESCENDING).limit(10)
+                .addSnapshotListener((snap, e) -> {
+                    if (snap != null) {
+                        listener.onDelegations(snap.getDocuments());
+                    }
+                });
+    }
+
+    public interface DelegationsListener {
+        void onDelegations(List<DocumentSnapshot> delegations);
+    }
+
+    // ---- Diary (V2.1) ----
+
+    public void saveDiaryEntry(Map<String, Object> entry) {
+        entry.put("ts", System.currentTimeMillis());
+        db.collection(ELDERS).document(ELDER_ID).collection("diary").add(entry);
+    }
+
+    public ListenerRegistration listenDiary(DiaryListener listener) {
+        return db.collection(ELDERS).document(ELDER_ID).collection("diary")
+                .orderBy("ts", Query.Direction.DESCENDING).limit(30)
+                .addSnapshotListener((snap, e) -> {
+                    if (snap != null) {
+                        listener.onDiary(snap.getDocuments());
+                    }
+                });
+    }
+
+    public interface DiaryListener {
+        void onDiary(List<DocumentSnapshot> entries);
+    }
+
+    public interface DiaryEntryCallback {
+        void onEntry(String summaryId, String summaryEn);
+    }
+
+    /** Latest diary summary, for the elder-side "bacakan buku harian saya" command. */
+    public void getLatestDiarySummary(DiaryEntryCallback callback) {
+        db.collection(ELDERS).document(ELDER_ID).collection("diary")
+                .orderBy("ts", Query.Direction.DESCENDING).limit(1).get()
+                .addOnSuccessListener(snap -> {
+                    if (!snap.isEmpty()) {
+                        DocumentSnapshot doc = snap.getDocuments().get(0);
+                        callback.onEntry(doc.getString("summaryId"), doc.getString("summaryEn"));
+                    } else {
+                        callback.onEntry(null, null);
+                    }
+                })
+                .addOnFailureListener(e -> callback.onEntry(null, null));
     }
 
     public ListenerRegistration listenTrend(TrendListener listener) {

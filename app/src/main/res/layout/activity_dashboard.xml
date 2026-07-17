@@ -33,6 +33,10 @@
             android:layout_height="1dp"
             android:layout_weight="1" />
 
+        <include
+            android:id="@+id/languageToggle"
+            layout="@layout/view_language_toggle" />
+
         <TextView
             android:id="@+id/dashboardLogout"
             android:layout_width="wrap_content"
@@ -65,6 +69,53 @@
                 android:textColor="@color/ink_black"
                 android:textSize="24sp" />
 
+            <TextView
+                android:id="@+id/onboardLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="@string/onboard_link"
+                android:textColor="@color/signal_violet"
+                android:textSize="15sp" />
+
+            <!-- Tabs: Trend (clinical) | Diary (love) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_lang_toggle"
+                android:orientation="horizontal"
+                android:padding="4dp">
+
+                <TextView
+                    android:id="@+id/tabTrend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_lang_selected"
+                    android:paddingStart="16dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="6dp"
+                    android:text="@string/tab_trend"
+                    android:textColor="@color/ink_black"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tabDiary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="6dp"
+                    android:text="@string/tab_diary"
+                    android:textColor="@color/ink_black"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
             <!-- Tier-2 warning banner (hidden unless a warning alert arrives) -->
             <LinearLayout
                 android:id="@+id/warningBanner"
@@ -86,6 +137,7 @@
 
             <!-- Trend card -->
             <LinearLayout
+                android:id="@+id/trendCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -130,8 +182,62 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Reminder adherence card -->
+            <LinearLayout
+                android:id="@+id/adherenceCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reminders_title"
+                    android:textColor="@color/ink_black"
+                    android:textSize="20sp" />
+
+                <LinearLayout
+                    android:id="@+id/adherenceList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/adherenceSignal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/adherence_signal"
+                    android:textColor="@color/mint_pulse"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Friends & delegation requests (V2 §2.4 guardian approval, V2.2 §D) -->
+            <TextView
+                android:id="@+id/delegationsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/delegations_title"
+                android:textColor="@color/ink_black"
+                android:textSize="20sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/delegationsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
+
             <!-- Recent moments feed -->
             <TextView
+                android:id="@+id/momentsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -145,6 +251,32 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:orientation="vertical" />
+
+            <!-- Diary content (V2.1) -->
+            <LinearLayout
+                android:id="@+id/diaryContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/diaryList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/diaryEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:text="@string/diary_empty"
+                    android:textColor="@color/slate_gray"
+                    android:textSize="15sp"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"

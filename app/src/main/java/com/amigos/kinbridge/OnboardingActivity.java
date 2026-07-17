@@ -112,6 +112,8 @@ public class OnboardingActivity extends AppCompatActivity {
         findViewById(R.id.optionCare).setOnClickListener(v -> enterRole(ROLE_CARE));
 
         findViewById(R.id.backToLanguage).setOnClickListener(v -> backToLanguageStep());
+        findViewById(R.id.authLink).setOnClickListener(v ->
+                startActivity(new Intent(this, LoginActivity.class)));
         findViewById(R.id.backToRole).setOnClickListener(v ->
                 crossfadeSteps(findViewById(R.id.stepFont), findViewById(R.id.stepRole)));
         findViewById(R.id.fontOkButton).setOnClickListener(v -> proceedToCompanion());
