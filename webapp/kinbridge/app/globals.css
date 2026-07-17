@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #F6F1E7;
+  --espresso: #231A12;
+  --terracotta: #C05A2E;
+  --sage: #7C8B6F;
+  --sand: #E4D9C3;
+  --amber: #B7791F;
+  --brick: #8C2F1B;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  color: var(--espresso);
+  background: var(--cream);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base {
+  .font-display {
+    font-family: var(--font-fraunces), Georgia, serif;
+  }
+  .font-ui {
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
