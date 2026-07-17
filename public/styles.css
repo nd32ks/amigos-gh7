@@ -674,3 +674,180 @@ main {
   .bubble { max-width: 92%; }
   .send-btn { padding: 12px 17px; }
 }
+
+/* ---------------- Video call (demo) ---------------- */
+
+.call-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #0b0f0e;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #0b0f0e;
+}
+
+/* Ringing state */
+.call-ringing {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.call-avatar {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--gradient-edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: call-pulse 1.6s ease-out infinite;
+}
+
+.call-avatar span {
+  font-family: var(--font-serif);
+  font-size: 52px;
+  color: var(--color-pure-white);
+}
+
+@keyframes call-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.45); }
+  100% { box-shadow: 0 0 0 30px rgba(20, 184, 166, 0); }
+}
+
+.call-name {
+  margin: 0 0 6px;
+  font-size: var(--text-heading-sm);
+  font-weight: 500;
+}
+
+.call-state {
+  margin: 0;
+  color: #9ca3af;
+  font-size: var(--text-body);
+  animation: call-blink 1.8s ease-in-out infinite;
+}
+
+@keyframes call-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* Connected state chrome */
+.call-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: linear-gradient(rgba(0, 0, 0, 0.45), transparent);
+}
+
+.call-peer {
+  font-weight: 500;
+  font-size: var(--text-body);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.call-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-body);
+}
+
+.call-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+/* Placeholder self-view tile (no camera in the demo) */
+.call-selfview {
+  position: absolute;
+  top: 84px;
+  right: 24px;
+  z-index: 2;
+  width: 96px;
+  height: 140px;
+  border-radius: var(--radius-inputs);
+  background: linear-gradient(160deg, #1f2937, #0f766e);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.call-selfview-label {
+  font-size: var(--text-caption);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Controls */
+.call-controls {
+  position: absolute;
+  bottom: 36px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.call-btn {
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  backdrop-filter: blur(6px);
+  transition: background 0.15s ease;
+}
+
+.call-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+.call-btn[aria-pressed="true"] {
+  background: var(--color-pure-white);
+  color: #0b0f0e;
+}
+
+.call-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.call-btn-end { background: #e5484d; }
+.call-btn-end:hover { background: #c93338; }
+
+@media (max-width: 600px) {
+  .call-btn { width: 56px; height: 56px; }
+  .call-selfview { width: 80px; height: 116px; top: 76px; right: 16px; }
+}

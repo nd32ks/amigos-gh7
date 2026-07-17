@@ -83,14 +83,14 @@
           </div>
         </article>
 
-        <article class="content-card card-soon">
-          <p class="card-label card-label-muted">Coming soon</p>
-          <h2 class="card-title">Feature Three</h2>
-          <p class="card-body">The next Kinbridge feature will appear here. This space is
-          reserved for it.</p>
+        <article class="content-card">
+          <p class="card-label">Family</p>
+          <h2 class="card-title">Video Call</h2>
+          <p class="card-body">See a familiar face. One tap and Kinbridge connects
+          you with the people you love.</p>
           <div class="card-footer">
-            <span class="pill-cta pill-disabled" aria-disabled="true">Soon</span>
-            <span class="expand-btn expand-disabled" aria-hidden="true">+</span>
+            <a href="#/call" class="pill-cta">Call <span aria-hidden="true">→</span></a>
+            <a href="#/call" class="expand-btn" aria-label="Start video call">+</a>
           </div>
         </article>
       </div>
@@ -170,7 +170,50 @@
         <ul id="facts-list" class="facts-list"></ul>
       </div>
     </section>
-  </main>
+
+    <!-- ============ VIDEO CALL (demo) ============ -->
+    <section id="view-call" class="view" hidden>
+      <div class="call-screen">
+        <video id="call-video" class="call-video" src="20260717_181036.mp4"
+          playsinline preload="auto" hidden></video>
+
+        <div id="call-ringing" class="call-ringing">
+          <div class="call-avatar" aria-hidden="true"><span>B</span></div>
+          <p class="call-name">Budi</p>
+          <p class="call-state">Calling…</p>
+        </div>
+
+        <div id="call-topbar" class="call-topbar" hidden>
+          <span class="call-peer">Budi · Grandson</span>
+          <span class="call-timer">
+            <span class="call-live-dot" aria-hidden="true"></span>
+            <span id="call-timer-value">00:00</span>
+          </span>
+        </div>
+
+        <div id="call-selfview" class="call-selfview" hidden>
+          <span class="call-selfview-label">You</span>
+        </div>
+
+        <div class="call-controls">
+          <button type="button" id="call-mute" class="call-btn" aria-pressed="false"
+            aria-label="Mute microphone">
+            <svg id="call-mic-on" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+            </svg>
+            <svg id="call-mic-off" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden>
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
+              <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button type="button" id="call-end" class="call-btn call-btn-end" aria-label="End call">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
 
   <footer class="site-footer">
     <div class="divider-stripe" aria-hidden="true"><span></span><span></span><span></span></div>

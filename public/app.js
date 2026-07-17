@@ -3,7 +3,7 @@
 const HISTORY_LIMIT = 20;
 const GREETING = 'Hello! I\'m Kin, your companion. How are you today?';
 
-const VIEWS = ['home', 'chat', 'journal', 'wellness'];
+const VIEWS = ['home', 'chat', 'journal', 'wellness', 'call'];
 
 /* ---------------- State (replaced immutably, never mutated) ---------------- */
 
@@ -65,6 +65,12 @@ function showView(name) {
   }
   if (name === 'wellness') {
     loadWellness();
+  }
+  if (name === 'call') {
+    startCall();
+  } else {
+    routeBeforeCall = name;
+    resetCallUi();
   }
 }
 
@@ -472,7 +478,112 @@ function attachChartTooltip(container, svg, trend, xAt, yAt) {
   });
 }
 
+/* ---------------- Video call (demo) ---------------- */
+
+const RING_DURATION_MS = 2500;
+
+let routeBeforeCall = 'home';
+let ringTimeoutId = null;
+let callTimerId = null;
+
+function callElements() {
+  return {
+    video: document.getElementById('call-video'),
+    ringing: document.getElementById('call-ringing'),
+    topbar: document.getElementById('call-topbar'),
+    selfview: document.getElementById('call-selfview'),
+    timer: document.getElementById('call-timer-value'),
+    mute: document.getElementById('call-mute'),
+    micOn: document.getElementById('call-mic-on'),
+    micOff: document.getElementById('call-mic-off'),
+  };
+}
+
+function formatCallTime(seconds) {
+  const total = Math.floor(seconds);
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const rest = total % 60;
+  const mm = String(minutes).padStart(2, '0');
+  const ss = String(rest).padStart(2, '0');
+  return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
+function stopCallTimer() {
+  if (callTimerId !== null) {
+    clearInterval(callTimerId);
+    callTimerId = null;
+  }
+}
+
+/** Resets every piece of call UI and stops playback — safe to call anytime. */
+function resetCallUi() {
+  if (ringTimeoutId !== null) {
+    clearTimeout(ringTimeoutId);
+    ringTimeoutId = null;
+  }
+  stopCallTimer();
+  const { video, ringing, topbar, selfview, timer } = callElements();
+  video.pause();
+  video.currentTime = 0;
+  video.hidden = true;
+  ringing.hidden = false;
+  topbar.hidden = true;
+  selfview.hidden = true;
+  timer.textContent = '00:00';
+}
+
+function startCall() {
+  resetCallUi();
+  setMuted(false);
+  ringTimeoutId = setTimeout(connectCall, RING_DURATION_MS);
+}
+
+async function connectCall() {
+  ringTimeoutId = null;
+  const { video, ringing, topbar, selfview, timer } = callElements();
+  ringing.hidden = true;
+  video.hidden = false;
+  topbar.hidden = false;
+  selfview.hidden = false;
+  try {
+    await video.play();
+  } catch {
+    // Autoplay with sound was blocked — fall back to muted playback.
+    setMuted(true);
+    video.play().catch((error) => console.error('Call video failed to play:', error));
+  }
+  stopCallTimer();
+  callTimerId = setInterval(() => {
+    timer.textContent = formatCallTime(video.currentTime);
+  }, 250);
+}
+
+function endCall() {
+  resetCallUi();
+  window.location.hash = `#/${routeBeforeCall}`;
+}
+
+function setMuted(muted) {
+  const { video, mute, micOn, micOff } = callElements();
+  video.muted = muted;
+  mute.setAttribute('aria-pressed', String(muted));
+  mute.setAttribute('aria-label', muted ? 'Unmute microphone' : 'Mute microphone');
+  micOn.hidden = muted;
+  micOff.hidden = !muted;
+}
+
+function setupCallControls() {
+  document.getElementById('call-end').addEventListener('click', endCall);
+  document.getElementById('call-mute').addEventListener('click', () => {
+    setMuted(!callElements().video.muted);
+  });
+  // The video reaching its end is the other side hanging up.
+  callElements().video.addEventListener('ended', endCall);
+}
+
 /* ---------------- Boot ---------------- */
 
 setupChatForm();
+setupCallControls();
 showView(currentRoute());
