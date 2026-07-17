@@ -63,3 +63,52 @@ export function tier1Misses(results) {
     (result) => result.tier === 1 && result.verdict === 'miss',
   ).length;
 }
+
+/**
+ * Maps a recall index to a brain-game plan for the Games section.
+ * Below LOW_INDEX_THRESHOLD, recall is struggling — Kin leans hard toward
+ * Hard/Medium puzzles and a higher daily goal (more practice helps most).
+ * Above HIGH_INDEX_THRESHOLD, recall is strong — Kin mirrors that into a
+ * lighter, mostly-Easy/Medium mix with a smaller maintenance goal.
+ * With no index yet (too few check-ins), Kin stays neutral until it knows more.
+ */
+export const LOW_INDEX_THRESHOLD = 50;
+export const HIGH_INDEX_THRESHOLD = 75;
+
+const GAME_PLANS = Object.freeze({
+  focus: Object.freeze({
+    tier: 'focus',
+    label: 'Extra practice',
+    primary: 'hard',
+    weights: Object.freeze({ easy: 0.1, medium: 0.4, hard: 0.5 }),
+    goal: 3,
+  }),
+  balanced: Object.freeze({
+    tier: 'balanced',
+    label: 'Steady practice',
+    primary: 'medium',
+    weights: Object.freeze({ easy: 0.25, medium: 0.5, hard: 0.25 }),
+    goal: 2,
+  }),
+  light: Object.freeze({
+    tier: 'light',
+    label: 'Maintain & enjoy',
+    primary: 'easy',
+    weights: Object.freeze({ easy: 0.5, medium: 0.4, hard: 0.1 }),
+    goal: 1,
+  }),
+});
+
+/** Pure lookup: recall index (0-100, or null with no data yet) -> a game plan. */
+export function gamePlan(index) {
+  if (index === null || index === undefined) {
+    return { ...GAME_PLANS.balanced, tier: 'unknown', index: null };
+  }
+  if (index < LOW_INDEX_THRESHOLD) {
+    return { ...GAME_PLANS.focus, index };
+  }
+  if (index < HIGH_INDEX_THRESHOLD) {
+    return { ...GAME_PLANS.balanced, index };
+  }
+  return { ...GAME_PLANS.light, index };
+}

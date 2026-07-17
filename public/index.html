@@ -32,6 +32,7 @@
       <a href="#/chat" data-nav="chat" class="nav-link">Chat</a>
       <a href="#/journal" data-nav="journal" class="nav-link">Journal</a>
       <a href="#/wellness" data-nav="wellness" class="nav-link">Wellness</a>
+      <a href="#/games" data-nav="games" class="nav-link">Play</a>
     </div>
     <a href="#/chat" class="pill-cta nav-cta">Talk to Kin <span aria-hidden="true">→</span></a>
   </nav>
@@ -91,6 +92,17 @@
           <div class="card-footer">
             <a href="#/call" class="pill-cta">Call <span aria-hidden="true">→</span></a>
             <a href="#/call" class="expand-btn" aria-label="Start video call">+</a>
+          </div>
+        </article>
+
+        <article class="content-card">
+          <p class="card-label">Recreation</p>
+          <h2 class="card-title">🌱 Brain Bloom</h2>
+          <p class="card-body">Playful crossword puzzles that quietly tune themselves —
+          harder or gentler — to how your memory check-ins have been going.</p>
+          <div class="card-footer">
+            <a href="#/games" class="pill-cta">Play <span aria-hidden="true">→</span></a>
+            <a href="#/games" class="expand-btn" aria-label="Open Brain Bloom games">+</a>
           </div>
         </article>
       </div>
@@ -171,6 +183,86 @@
       </div>
     </section>
 
+    <!-- ============ GAMES (Brain Bloom) ============ -->
+    <section id="view-games" class="view" hidden>
+      <header class="wellness-header">
+        <h1 class="serif-heading">🌱 Brain Bloom</h1>
+        <p class="wellness-sub">Fun crossword puzzles that quietly tune themselves to how
+        your memory check-ins have been going. Play at your own pace — hints are always here.</p>
+      </header>
+
+      <div id="games-banner" class="games-banner" role="status" hidden></div>
+
+      <div class="stat-row">
+        <div class="stat-tile">
+          <p class="stat-label">Today's suggested goal</p>
+          <p class="stat-value" id="stat-goal">–</p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-label">Completed today</p>
+          <p class="stat-value" id="stat-completed">–</p>
+        </div>
+      </div>
+
+      <section id="difficulty-section" class="wellness-card">
+        <h2 class="wellness-card-title">Choose a puzzle</h2>
+        <div class="difficulty-grid">
+          <button type="button" class="difficulty-card" data-difficulty="easy">
+            <span class="difficulty-badge" hidden>Kin recommends</span>
+            <span class="difficulty-name">Easy</span>
+            <span class="difficulty-desc">Small grid, short everyday words. A relaxed warm-up.</span>
+          </button>
+          <button type="button" class="difficulty-card" data-difficulty="medium">
+            <span class="difficulty-badge" hidden>Kin recommends</span>
+            <span class="difficulty-name">Medium</span>
+            <span class="difficulty-desc">A bit bigger, a few more words. Steady practice.</span>
+          </button>
+          <button type="button" class="difficulty-card" data-difficulty="hard">
+            <span class="difficulty-badge" hidden>Kin recommends</span>
+            <span class="difficulty-name">Hard</span>
+            <span class="difficulty-desc">Bigger grid, longer words. A good mental stretch.</span>
+          </button>
+        </div>
+        <button type="button" id="surprise-me" class="pill-cta surprise-btn">
+          🎲 Surprise me — Kin picks
+        </button>
+      </section>
+
+      <section id="puzzle-board" class="wellness-card puzzle-board" hidden>
+        <div class="puzzle-board-header">
+          <div>
+            <h2 id="puzzle-title" class="wellness-card-title"></h2>
+            <span id="puzzle-difficulty-chip" class="chip"></span>
+          </div>
+          <button type="button" id="puzzle-back" class="pill-cta">← All puzzles</button>
+        </div>
+
+        <div class="crossword-wrap">
+          <div id="crossword-grid" class="crossword-grid" role="grid" aria-label="Crossword puzzle grid"></div>
+          <div class="clue-panel">
+            <div class="clue-column">
+              <h3 class="clue-heading">Across</h3>
+              <ul id="clues-across" class="clue-list"></ul>
+            </div>
+            <div class="clue-column">
+              <h3 class="clue-heading">Down</h3>
+              <ul id="clues-down" class="clue-list"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="puzzle-controls">
+          <button type="button" id="hint-letter" class="pill-cta">💡 Hint: a letter</button>
+          <button type="button" id="hint-word" class="pill-cta">🔍 Hint: whole word</button>
+          <button type="button" id="check-answers" class="pill-cta">✓ Check my answers</button>
+          <button type="button" id="new-puzzle" class="pill-cta">🔀 New puzzle</button>
+        </div>
+
+        <p id="puzzle-status" class="wellness-empty" hidden></p>
+        <div id="puzzle-complete" class="puzzle-complete" hidden></div>
+      </section>
+    </section>
+
     <!-- ============ VIDEO CALL (demo) ============ -->
     <section id="view-call" class="view" hidden>
       <div class="call-screen">
@@ -220,6 +312,7 @@
     <p class="footer-note">Kinbridge — made with care for the people who raised us.</p>
   </footer>
 
+  <script src="games.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

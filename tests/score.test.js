@@ -4,6 +4,7 @@ import {
   buildTrend,
   dailyIndex,
   ewmaSeries,
+  gamePlan,
   tier1Misses,
 } from '../server/screening/score.js';
 
@@ -74,4 +75,39 @@ test('tier1Misses counts only tier-1 misses', () => {
   ];
   assert.equal(tier1Misses(results), 1);
   assert.equal(tier1Misses(undefined), 0);
+});
+
+test('gamePlan leans hard/medium and raises the goal below the low threshold', () => {
+  const plan = gamePlan(35);
+  assert.equal(plan.tier, 'focus');
+  assert.equal(plan.primary, 'hard');
+  assert.equal(plan.goal, 3);
+  assert.ok(plan.weights.hard > plan.weights.easy);
+});
+
+test('gamePlan mirrors into easy/medium and lowers the goal above the high threshold', () => {
+  const plan = gamePlan(90);
+  assert.equal(plan.tier, 'light');
+  assert.equal(plan.primary, 'easy');
+  assert.equal(plan.goal, 1);
+  assert.ok(plan.weights.easy > plan.weights.hard);
+});
+
+test('gamePlan stays balanced between the thresholds', () => {
+  const plan = gamePlan(60);
+  assert.equal(plan.tier, 'balanced');
+  assert.equal(plan.primary, 'medium');
+  assert.equal(plan.goal, 2);
+});
+
+test('gamePlan is neutral with no index yet', () => {
+  const plan = gamePlan(null);
+  assert.equal(plan.tier, 'unknown');
+  assert.equal(plan.primary, 'medium');
+  assert.equal(plan.index, null);
+});
+
+test('gamePlan treats the thresholds as boundaries: 50 is balanced, 75 is light', () => {
+  assert.equal(gamePlan(50).tier, 'balanced');
+  assert.equal(gamePlan(75).tier, 'light');
 });

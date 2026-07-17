@@ -3,7 +3,7 @@
 const HISTORY_LIMIT = 20;
 const GREETING = 'Hello! I\'m Kin, your companion. How are you today?';
 
-const VIEWS = ['home', 'chat', 'journal', 'wellness', 'call'];
+const VIEWS = ['home', 'chat', 'journal', 'wellness', 'games', 'call'];
 
 /* ---------------- State (replaced immutably, never mutated) ---------------- */
 
@@ -65,6 +65,9 @@ function showView(name) {
   }
   if (name === 'wellness') {
     loadWellness();
+  }
+  if (name === 'games') {
+    loadGames();
   }
   if (name === 'call') {
     startCall();
