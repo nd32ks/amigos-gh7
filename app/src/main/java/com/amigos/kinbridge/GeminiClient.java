@@ -34,6 +34,7 @@ public final class GeminiClient {
     private static final int TIMEOUT_MS = 10_000;
 
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
+    private static final String TAG = "GeminiClient";
 
     private GeminiClient() {
     }
@@ -105,6 +106,7 @@ public final class GeminiClient {
                 }
                 MAIN.post(() -> callback.onResult(verdict, confidence));
             } catch (Exception e) {
+                android.util.Log.w(TAG, "Gemini call failed", e);
                 MAIN.post(callback::onError);
             }
         }).start();
@@ -153,6 +155,7 @@ public final class GeminiClient {
                 String finalReply = reply;
                 MAIN.post(() -> callback.onResult(finalReply));
             } catch (Exception e) {
+                android.util.Log.w(TAG, "Gemini call failed", e);
                 MAIN.post(callback::onError);
             }
         }).start();
@@ -191,6 +194,7 @@ public final class GeminiClient {
                 }
                 MAIN.post(() -> callback.onResult(facts));
             } catch (Exception e) {
+                android.util.Log.w(TAG, "Gemini call failed", e);
                 MAIN.post(callback::onError);
             }
         }).start();
@@ -260,6 +264,7 @@ public final class GeminiClient {
                 String reply = post(system, contents, 0.7, false).trim();
                 MAIN.post(() -> callback.onReply(reply));
             } catch (Exception e) {
+                android.util.Log.w(TAG, "Gemini call failed", e);
                 MAIN.post(callback::onError);
             }
         }).start();
@@ -292,6 +297,7 @@ public final class GeminiClient {
                 String summary = post(system, contents, 0.3, false).trim();
                 MAIN.post(() -> callback.onSummary(summary));
             } catch (Exception e) {
+                android.util.Log.w(TAG, "Gemini call failed", e);
                 MAIN.post(callback::onError);
             }
         }).start();
@@ -325,6 +331,7 @@ public final class GeminiClient {
                 String summary = post(system, contents, 0.3, false).trim();
                 MAIN.post(() -> callback.onSummary(summary));
             } catch (Exception e) {
+                android.util.Log.w(TAG, "Gemini call failed", e);
                 MAIN.post(callback::onError);
             }
         }).start();
