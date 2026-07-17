@@ -18,6 +18,7 @@ export const config = Object.freeze({
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
   logsDir: process.env.LOGS_DIR ?? path.join(ROOT_DIR, 'logs'),
+  factsPath: process.env.FACTS_PATH ?? path.join(ROOT_DIR, 'data', 'elder-facts.json'),
   publicDir: path.join(ROOT_DIR, 'public'),
 });
 

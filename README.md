@@ -11,8 +11,13 @@ screen as an app (PWA manifest included).
 ## Features
 
 1. **AI Companion Chat** — Gemini-powered companion ("Kin") that chats in the
-   elder's own language and logs the personal information they share.
-2. **Daily Journal** — browse the one-file-per-day conversation logs.
+   elder's own language and logs the personal information they share, plus the
+   **Daily Journal** to browse the one-file-per-day conversation logs.
+2. **Cognitive Wellness Screening** — Kin gently weaves memory check-ins into
+   conversation (about one every three turns), a temperature-0 judge scores each
+   recall against ground-truth facts (`data/elder-facts.json`), and results roll
+   into a tier-weighted Recall Index shown on the Wellness dashboard with a
+   day-by-day trend. An early signal — never a diagnosis.
 3. _Reserved_ — third feature slot, not yet specified.
 
 ## Setup

@@ -3,7 +3,7 @@
 const HISTORY_LIMIT = 20;
 const GREETING = 'Hello! I\'m Kin, your companion. How are you today?';
 
-const VIEWS = ['home', 'chat', 'journal'];
+const VIEWS = ['home', 'chat', 'journal', 'wellness'];
 
 /* ---------------- State (replaced immutably, never mutated) ---------------- */
 
@@ -62,6 +62,9 @@ function showView(name) {
   }
   if (name === 'journal') {
     loadJournalDays();
+  }
+  if (name === 'wellness') {
+    loadWellness();
   }
 }
 
@@ -245,6 +248,228 @@ async function openJournalPage(day) {
       'This page could not be loaded. Please try again.';
     page.hidden = false;
   }
+}
+
+/* ---------------- Wellness dashboard ---------------- */
+
+const VERDICT_CHIPS = {
+  exact: { text: '✓ Remembered', className: 'chip-good' },
+  partial: { text: '◐ Partly', className: 'chip-warn' },
+  miss: { text: '✕ Missed', className: 'chip-bad' },
+  no_answer: { text: '– No answer', className: 'chip-neutral' },
+};
+
+const TIER_NAMES = { 1: 'Core', 2: 'Recent', 3: 'Preference' };
+
+function chipElement(text, className) {
+  const span = document.createElement('span');
+  span.className = `chip ${className}`;
+  span.textContent = text;
+  return span;
+}
+
+function probeListItem(probe) {
+  const li = document.createElement('li');
+  const left = document.createElement('span');
+  left.className = 'probe-fact';
+  left.textContent = probe.label;
+  const time = document.createElement('span');
+  time.className = 'probe-time';
+  time.textContent = probe.time;
+  left.appendChild(time);
+  const chip = VERDICT_CHIPS[probe.verdict] ?? VERDICT_CHIPS.no_answer;
+  li.append(left, chipElement(chip.text, chip.className));
+  return li;
+}
+
+function factListItem(fact) {
+  const li = document.createElement('li');
+  const label = document.createElement('span');
+  label.className = 'probe-fact';
+  label.textContent = fact.label;
+  li.append(label, chipElement(TIER_NAMES[fact.tier] ?? 'Other', 'chip-neutral'));
+  return li;
+}
+
+async function loadWellness() {
+  try {
+    const data = await fetchJson('/api/screening');
+    renderWellnessStats(data);
+    renderWellnessAlert(data.today.tier1Misses);
+    renderTrendChart(data.trend);
+    renderProbeList(data.today.probes);
+    renderFactsList(data.facts);
+  } catch (error) {
+    console.error('Failed to load wellness data:', error);
+    const alert = document.getElementById('wellness-alert');
+    alert.textContent = 'Wellness data could not be loaded. Please try again.';
+    alert.hidden = false;
+  }
+}
+
+function renderWellnessStats(data) {
+  const latest = data.trend.length > 0 ? data.trend[data.trend.length - 1] : null;
+  document.getElementById('stat-index').textContent =
+    data.today.index === null ? '–' : String(data.today.index);
+  document.getElementById('stat-checks').textContent = String(data.today.probes.length);
+  document.getElementById('stat-trend').textContent =
+    latest === null ? '–' : String(latest.ewma);
+}
+
+function renderWellnessAlert(tier1Misses) {
+  const alert = document.getElementById('wellness-alert');
+  if (tier1Misses > 0) {
+    alert.textContent = '⚠ A core memory check-in was missed today. A gentle call might be reassuring.';
+    alert.hidden = false;
+  } else {
+    alert.hidden = true;
+  }
+}
+
+function renderProbeList(probes) {
+  const list = document.getElementById('probe-list');
+  list.replaceChildren(...probes.map(probeListItem));
+  document.getElementById('probe-empty').hidden = probes.length > 0;
+}
+
+function renderFactsList(facts) {
+  const list = document.getElementById('facts-list');
+  list.replaceChildren(...facts.map(factListItem));
+}
+
+/* Trend chart: single-series line, index 0-100 per day. */
+
+const CHART = {
+  width: 640,
+  height: 240,
+  padLeft: 40,
+  padRight: 20,
+  padTop: 16,
+  padBottom: 30,
+  line: '#0f766e',
+  grid: '#ececec',
+  text: '#707070',
+};
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgElement(tag, attributes) {
+  const element = document.createElementNS(SVG_NS, tag);
+  for (const [key, value] of Object.entries(attributes)) {
+    element.setAttribute(key, String(value));
+  }
+  return element;
+}
+
+function chartScales(count) {
+  const plotWidth = CHART.width - CHART.padLeft - CHART.padRight;
+  const plotHeight = CHART.height - CHART.padTop - CHART.padBottom;
+  const xAt = (position) => (count === 1
+    ? CHART.padLeft + plotWidth / 2
+    : CHART.padLeft + (plotWidth * position) / (count - 1));
+  const yAt = (value) => CHART.padTop + plotHeight * (1 - value / 100);
+  return { xAt, yAt };
+}
+
+function shortDate(stamp) {
+  const [year, month, day] = stamp.split('-').map(Number);
+  return new Date(year, month - 1, day)
+    .toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function renderTrendChart(trend) {
+  const container = document.getElementById('trend-chart');
+  const emptyNote = document.getElementById('trend-empty');
+  container.replaceChildren();
+  emptyNote.hidden = trend.length > 0;
+  if (trend.length === 0) {
+    return;
+  }
+
+  const { xAt, yAt } = chartScales(trend.length);
+  const svg = svgElement('svg', {
+    viewBox: `0 0 ${CHART.width} ${CHART.height}`,
+    role: 'img',
+    'aria-label': `Recall index by day: ${trend.map((p) => `${shortDate(p.date)} ${p.index}`).join(', ')}`,
+  });
+
+  for (const gridValue of [0, 25, 50, 75, 100]) {
+    const y = yAt(gridValue);
+    svg.appendChild(svgElement('line', {
+      x1: CHART.padLeft, y1: y, x2: CHART.width - CHART.padRight, y2: y,
+      stroke: CHART.grid, 'stroke-width': 1,
+    }));
+    const tick = svgElement('text', {
+      x: CHART.padLeft - 8, y: y + 4, 'text-anchor': 'end',
+      fill: CHART.text, 'font-size': 12,
+    });
+    tick.textContent = String(gridValue);
+    svg.appendChild(tick);
+  }
+
+  if (trend.length > 1) {
+    const path = trend
+      .map((point, position) => `${position === 0 ? 'M' : 'L'}${xAt(position)},${yAt(point.index)}`)
+      .join(' ');
+    svg.appendChild(svgElement('path', {
+      d: path, fill: 'none', stroke: CHART.line,
+      'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+    }));
+  }
+
+  trend.forEach((point, position) => {
+    const x = xAt(position);
+    svg.appendChild(svgElement('circle', {
+      cx: x, cy: yAt(point.index), r: 4,
+      fill: CHART.line, stroke: '#ffffff', 'stroke-width': 2,
+    }));
+    const label = svgElement('text', {
+      x, y: CHART.height - 8, 'text-anchor': 'middle',
+      fill: CHART.text, 'font-size': 12,
+    });
+    label.textContent = shortDate(point.date);
+    svg.appendChild(label);
+  });
+
+  const last = trend[trend.length - 1];
+  const lastY = yAt(last.index);
+  const lastLabelY = lastY < CHART.padTop + 18 ? lastY + 22 : lastY - 12;
+  const lastLabel = svgElement('text', {
+    x: xAt(trend.length - 1), y: lastLabelY, 'text-anchor': 'middle',
+    fill: CHART.line, 'font-size': 13, 'font-weight': 600,
+  });
+  lastLabel.textContent = String(last.index);
+  svg.appendChild(lastLabel);
+
+  container.appendChild(svg);
+  attachChartTooltip(container, svg, trend, xAt, yAt);
+}
+
+function attachChartTooltip(container, svg, trend, xAt, yAt) {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'chart-tooltip';
+  tooltip.hidden = true;
+  container.appendChild(tooltip);
+
+  svg.addEventListener('mousemove', (event) => {
+    const rect = svg.getBoundingClientRect();
+    const scale = CHART.width / rect.width;
+    const mouseX = (event.clientX - rect.left) * scale;
+    const nearest = trend.reduce((best, point, position) => {
+      const distance = Math.abs(xAt(position) - mouseX);
+      return distance < best.distance ? { position, distance } : best;
+    }, { position: 0, distance: Infinity });
+
+    const point = trend[nearest.position];
+    tooltip.textContent = `${shortDate(point.date)} — index ${point.index}`;
+    tooltip.style.left = `${xAt(nearest.position) / scale}px`;
+    tooltip.style.top = `${yAt(point.index) / scale}px`;
+    tooltip.hidden = false;
+  });
+
+  svg.addEventListener('mouseleave', () => {
+    tooltip.hidden = true;
+  });
 }
 
 /* ---------------- Boot ---------------- */

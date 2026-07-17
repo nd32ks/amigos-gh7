@@ -29,6 +29,20 @@ Rules:
 - If the latest message contains no new personal information, return [].
 Return ONLY the JSON array, nothing else.`;
 
+const JUDGE_SYSTEM_PROMPT = `You evaluate whether an elderly person correctly recalled a personal fact during a friendly conversation with a companion chatbot. You receive the expected fact, the companion's question, and the elder's reply (any language, possibly informal or with typos).
+
+Rules:
+- "exact": the reply contains the canonical value or any accepted alias, allowing minor spelling variance.
+- "partial": hesitant, vague, or incomplete but directionally correct, or recalls the category but not the specific.
+- "miss": states a WRONG value, or explicitly cannot remember.
+- "no_answer": the reply is unrelated to the question (topic change).
+- If they correct themselves, judge ONLY the final statement.
+- Ignore filler words when judging content.
+
+Output JSON only: {"verdict":"exact|partial|miss|no_answer","confidence":0.0-1.0,"recalled_value":"<what they actually claimed, verbatim>","reasoning_short":"<max 20 words>"}`;
+
+const VALID_VERDICTS = new Set(['exact', 'partial', 'miss', 'no_answer']);
+
 function buildContents(messages) {
   return messages.map((message) => ({
     role: message.role,
@@ -68,12 +82,38 @@ async function callGemini({ systemPrompt, contents, temperature, jsonOutput = fa
   return text;
 }
 
-export async function companionReply(messages) {
+export async function companionReply(messages, probeInstruction = null) {
+  const systemPrompt = probeInstruction
+    ? COMPANION_SYSTEM_PROMPT + probeInstruction
+    : COMPANION_SYSTEM_PROMPT;
   return callGemini({
-    systemPrompt: COMPANION_SYSTEM_PROMPT,
+    systemPrompt,
     contents: buildContents(messages),
     temperature: 0.7,
   });
+}
+
+/** Judges the elder's reply to a probe. Returns { verdict, confidence }. */
+export async function judgeRecall({ fact, question, reply }) {
+  const user =
+    `EXPECTED FACT: ${fact.canonical}`
+    + `\nACCEPTED ALIASES: ${fact.aliases.join(', ')}`
+    + `\nCOMPANION'S QUESTION: ${question}`
+    + `\nELDER'S REPLY: ${reply}`;
+
+  const raw = await callGemini({
+    systemPrompt: JUDGE_SYSTEM_PROMPT,
+    contents: [{ role: 'user', parts: [{ text: user }] }],
+    temperature: 0,
+    jsonOutput: true,
+  });
+
+  const parsed = JSON.parse(raw);
+  const verdict = VALID_VERDICTS.has(parsed.verdict) ? parsed.verdict : 'no_answer';
+  const confidence = typeof parsed.confidence === 'number'
+    ? Math.min(1, Math.max(0, parsed.confidence))
+    : 0.5;
+  return { verdict, confidence };
 }
 
 export async function extractFacts(messages, todaysLog) {

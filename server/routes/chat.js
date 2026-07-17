@@ -1,8 +1,18 @@
 import { Router } from 'express';
-import { companionReply, extractFacts } from '../gemini.js';
-import { appendFacts, readTodaysLog } from '../dailyLog.js';
+import { companionReply, extractFacts, judgeRecall } from '../gemini.js';
+import { appendFacts, readTodaysLog, timeStamp } from '../dailyLog.js';
 import { validateChatRequest } from '../validate.js';
 import { config } from '../config.js';
+import { loadFacts } from '../screening/facts.js';
+import {
+  buildProbeInstruction,
+  chooseNextFact,
+  shouldProbe,
+  stateAfterIdleTurn,
+  stateAfterJudge,
+  stateAfterProbe,
+} from '../screening/probes.js';
+import { appendResult, loadState, saveState } from '../screening/store.js';
 
 const RECENT_CONTEXT_SIZE = 6;
 
@@ -20,6 +30,63 @@ async function logNewFacts(messages) {
   }
 }
 
+/** Last companion message before the elder's reply — the probe question. */
+function lastModelText(messages) {
+  const modelMessages = messages.filter((message) => message.role === 'model');
+  return modelMessages.length > 0 ? modelMessages[modelMessages.length - 1].text : '';
+}
+
+/** Judges the elder's reply to a pending probe and records the verdict. */
+async function judgePendingProbe(pendingProbe, messages) {
+  const facts = await loadFacts(config.factsPath);
+  const fact = facts.find((candidate) => candidate.id === pendingProbe.factId);
+  if (!fact) {
+    console.error(`[screening] Pending probe fact "${pendingProbe.factId}" no longer exists.`);
+    return;
+  }
+  const reply = messages[messages.length - 1].text;
+  const { verdict, confidence } = await judgeRecall({
+    fact,
+    question: lastModelText(messages),
+    reply,
+  });
+  const now = new Date();
+  await appendResult(config.logsDir, {
+    time: timeStamp(now),
+    factId: fact.id,
+    label: fact.label,
+    tier: fact.tier,
+    verdict,
+    confidence,
+  }, now);
+  console.log(`[screening] Judged "${fact.id}" as ${verdict} (${confidence}).`);
+}
+
+/**
+ * Advances the probe state machine for this turn. Returns the hidden
+ * instruction for the companion (or null) and the probe to judge (or null).
+ */
+async function advanceScreening(messages) {
+  const state = await loadState(config.logsDir);
+
+  if (state.pendingProbe) {
+    await saveState(config.logsDir, stateAfterJudge(state));
+    return { probeInstruction: null, probeToJudge: state.pendingProbe };
+  }
+
+  if (shouldProbe(state)) {
+    const facts = await loadFacts(config.factsPath);
+    const fact = chooseNextFact(facts, state.lastProbed);
+    if (fact) {
+      await saveState(config.logsDir, stateAfterProbe(state, fact.id, new Date().toISOString()));
+      return { probeInstruction: buildProbeInstruction(fact), probeToJudge: null };
+    }
+  }
+
+  await saveState(config.logsDir, stateAfterIdleTurn(state));
+  return { probeInstruction: null, probeToJudge: null };
+}
+
 export const chatRouter = Router();
 
 chatRouter.post('/api/chat', async (req, res) => {
@@ -29,13 +96,25 @@ chatRouter.post('/api/chat', async (req, res) => {
     return;
   }
 
+  let screening = { probeInstruction: null, probeToJudge: null };
   try {
-    const reply = await companionReply(result.messages);
+    screening = await advanceScreening(result.messages);
+  } catch (error) {
+    console.error('[screening] Probe scheduling failed, continuing without it:', error);
+  }
+
+  try {
+    const reply = await companionReply(result.messages, screening.probeInstruction);
     res.json({ success: true, data: { reply }, error: null });
 
     logNewFacts(result.messages).catch((error) => {
       console.error('[daily-log] Failed to update today\'s log:', error);
     });
+    if (screening.probeToJudge) {
+      judgePendingProbe(screening.probeToJudge, result.messages).catch((error) => {
+        console.error('[screening] Failed to judge probe reply:', error);
+      });
+    }
   } catch (error) {
     console.error('[chat] Gemini request failed:', error);
     res.status(502).json({

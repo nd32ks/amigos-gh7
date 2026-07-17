@@ -1,0 +1,48 @@
+{
+  "elder": {
+    "name": "Sri Rahayu",
+    "preferredAddress": "Ibu Sri"
+  },
+  "facts": [
+    {
+      "id": "spouse-name",
+      "tier": 1,
+      "label": "Spouse's name",
+      "probe": "Ask warmly how their spouse is doing these days, in a way that invites them to mention the name.",
+      "canonical": "Harto",
+      "aliases": ["Harto", "Pak Harto"]
+    },
+    {
+      "id": "daughter-name",
+      "tier": 1,
+      "label": "Daughter's name",
+      "probe": "Ask who usually calls or checks in on them, hoping they mention their daughter by name.",
+      "canonical": "Dewi",
+      "aliases": ["Dewi"]
+    },
+    {
+      "id": "home-area",
+      "tier": 1,
+      "label": "Where they live",
+      "probe": "Ask what their neighbourhood is like or how long they have lived in their area.",
+      "canonical": "Gading Serpong",
+      "aliases": ["Gading Serpong", "Serpong", "Tangerang"]
+    },
+    {
+      "id": "grandson-visit",
+      "tier": 2,
+      "label": "Grandson's Saturday visit",
+      "probe": "Ask if any family members are coming to visit soon.",
+      "canonical": "Grandson Budi is visiting on Saturday",
+      "aliases": ["Budi", "Saturday"]
+    },
+    {
+      "id": "recent-meal",
+      "tier": 3,
+      "label": "What they ate recently",
+      "probe": "Ask what they have been eating lately or what they last cooked.",
+      "canonical": "chicken soup",
+      "aliases": ["soup", "chicken soup"]
+    }
+  ]
+}

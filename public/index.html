@@ -31,6 +31,7 @@
       <a href="#/home" data-nav="home" class="nav-link">Home</a>
       <a href="#/chat" data-nav="chat" class="nav-link">Chat</a>
       <a href="#/journal" data-nav="journal" class="nav-link">Journal</a>
+      <a href="#/wellness" data-nav="wellness" class="nav-link">Wellness</a>
     </div>
     <a href="#/chat" class="pill-cta nav-cta">Talk to Kin <span aria-hidden="true">→</span></a>
   </nav>
@@ -68,6 +69,17 @@
           <div class="card-footer">
             <a href="#/journal" class="pill-cta">Read <span aria-hidden="true">→</span></a>
             <a href="#/journal" class="expand-btn" aria-label="Open journal">+</a>
+          </div>
+        </article>
+
+        <article class="content-card">
+          <p class="card-label">Wellness</p>
+          <h2 class="card-title">Cognitive Wellness</h2>
+          <p class="card-body">Kind check-ins hidden inside conversation build a gentle
+          memory-health signal for the family. Never a test, never a diagnosis.</p>
+          <div class="card-footer">
+            <a href="#/wellness" class="pill-cta">View <span aria-hidden="true">→</span></a>
+            <a href="#/wellness" class="expand-btn" aria-label="Open wellness">+</a>
           </div>
         </article>
 
@@ -113,6 +125,50 @@
       </article>
       <p id="journal-empty" class="journal-empty" hidden>No journal pages yet.
       Have a chat with Kin first — today's page will appear here.</p>
+    </section>
+    <!-- ============ WELLNESS ============ -->
+    <section id="view-wellness" class="view" hidden>
+      <header class="wellness-header">
+        <h1 class="serif-heading">Wellness signals</h1>
+        <p class="wellness-sub">Gentle check-ins woven into everyday conversation.
+        An early signal — never a diagnosis.</p>
+      </header>
+
+      <div id="wellness-alert" class="wellness-alert" role="status" hidden></div>
+
+      <div class="stat-row">
+        <div class="stat-tile">
+          <p class="stat-label">Recall index today</p>
+          <p class="stat-value" id="stat-index">–</p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-label">Check-ins today</p>
+          <p class="stat-value" id="stat-checks">–</p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-label">Smoothed trend</p>
+          <p class="stat-value" id="stat-trend">–</p>
+        </div>
+      </div>
+
+      <div class="wellness-card">
+        <h2 class="wellness-card-title">Recall index over time</h2>
+        <div id="trend-chart" class="trend-chart"></div>
+        <p id="trend-empty" class="wellness-empty" hidden>Not enough conversations yet —
+        the trend appears after Kin's first gentle check-ins.</p>
+      </div>
+
+      <div class="wellness-card">
+        <h2 class="wellness-card-title">Today's check-ins</h2>
+        <ul id="probe-list" class="probe-list"></ul>
+        <p id="probe-empty" class="wellness-empty" hidden>No check-ins yet today.
+        They happen quietly, about one every few chat turns.</p>
+      </div>
+
+      <div class="wellness-card">
+        <h2 class="wellness-card-title">What Kin gently checks</h2>
+        <ul id="facts-list" class="facts-list"></ul>
+      </div>
     </section>
   </main>
 
