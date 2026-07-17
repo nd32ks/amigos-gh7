@@ -21,9 +21,6 @@ public class LoginActivity extends AppCompatActivity {
     private static boolean fontPanelOpen;
 
     private String role;
-    private TextView roleElderView;
-    private TextView roleGuardianView;
-    private TextView roleCareView;
     private EditText emailInput;
     private EditText passwordInput;
     private TextView emailError;
@@ -55,14 +52,6 @@ public class LoginActivity extends AppCompatActivity {
         roleElder.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_SENIOR));
         roleGuardian.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_GUARDIAN));
         roleCare.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_CARE));
-        selectRole(role);
-
-        roleElderView = findViewById(R.id.roleElder);
-        roleGuardianView = findViewById(R.id.roleGuardian);
-        roleCareView = findViewById(R.id.roleCare);
-        roleElderView.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_SENIOR));
-        roleGuardianView.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_GUARDIAN));
-        roleCareView.setOnClickListener(v -> selectRole(OnboardingActivity.ROLE_CARE));
         selectRole(role);
 
         emailInput = findViewById(R.id.emailInput);
@@ -124,15 +113,6 @@ public class LoginActivity extends AppCompatActivity {
                         }).start();
             }
         });
-    }
-
-    private void selectRole(String selected) {
-        role = selected;
-        roleElderView.setSelected(OnboardingActivity.ROLE_SENIOR.equals(selected));
-        roleGuardianView.setSelected(OnboardingActivity.ROLE_GUARDIAN.equals(selected));
-        roleCareView.setSelected(OnboardingActivity.ROLE_CARE.equals(selected));
-        ((TextView) findViewById(R.id.loginSubtitle)).setText(
-                getString(R.string.login_as_role, OnboardingActivity.roleDisplayName(this, role)));
     }
 
     /** Role is also switchable here; sign-in verifies the account matches it. */

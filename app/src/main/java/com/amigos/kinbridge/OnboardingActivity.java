@@ -44,7 +44,7 @@ public class OnboardingActivity extends AppCompatActivity {
         if (ROLE_CARE.equals(role)) {
             return CarePanelActivity.class;
         }
-        return CompanionActivity.class;
+        return ElderHomeActivity.class;
     }
 
     static final String ROLE_EXTRA = "com.amigos.kinbridge.ROLE";

@@ -57,6 +57,23 @@ public class UserRepository {
         auth.signOut();
     }
 
+    public interface ProfileCallback {
+        void onLoaded(String name, String gender);
+    }
+
+    /** Name + gender of the signed-in account (for the elder home greeting). */
+    public void getUserProfile(ProfileCallback callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onLoaded(null, null);
+            return;
+        }
+        db.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(doc -> callback.onLoaded(
+                        doc.getString("name"), doc.getString("gender")))
+                .addOnFailureListener(e -> callback.onLoaded(null, null));
+    }
+
     /** Role check: missing doc binds the role (first login); mismatched role rejects. */
     private void verifyRole(FirebaseUser user, String expectedRole, Callback callback) {
         DocumentReference ref = db.collection("users").document(user.getUid());

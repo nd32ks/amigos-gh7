@@ -44,7 +44,7 @@
     <string name="login_as_role">Masuk sebagai %1$s</string>
     <string name="role_label">Peran</string>
     <string name="create_as_role">Buat akun %1$s</string>
-    <string name="error_role_mismatch">Akun ini terdaftar sebagai %1$s. Silakan kembali dan pilih peran tersebut.</string>
+    <string name="error_role_mismatch">Akun ini terdaftar sebagai %1$s. Pilih peran tersebut di atas untuk masuk.</string>
     <string name="role_senior">Warga senior</string>
     <string name="role_senior_sub">Saya ingin teman ngobrol setiap hari</string>
     <string name="role_volunteer">Pekerja sosial / relawan</string>
@@ -126,4 +126,17 @@
     <string name="diary_share">Bagikan</string>
     <string name="diary_shared">Terkirim ✓</string>
     <string name="custom_probe">Coba ceritakan lagi tentang %1$s, Bu?</string>
+    <string name="welcome_elder">Selamat datang, %1$s</string>
+    <string name="honorific_mrs">Ibu %1$s</string>
+    <string name="honorific_mr">Bapak %1$s</string>
+    <string name="elder_features_title">Apa yang ingin Anda lakukan hari ini?</string>
+    <string name="feature_kenang">Kenang</string>
+    <string name="feature_kenang_sub">Teman ngobrol harian Anda</string>
+    <string name="feature_diary">Buku Harian</string>
+    <string name="feature_diary_sub">Kisah Anda, diceritakan kembali</string>
+    <string name="account_title">Akun</string>
+    <string name="settings_title">Pengaturan</string>
+    <string name="text_size">Ukuran teks</string>
+    <string name="reset_settings">Atur ulang pengaturan</string>
+    <string name="settings_reset_done">Pengaturan telah direset</string>
 </resources>

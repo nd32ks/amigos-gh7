@@ -47,6 +47,14 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".ElderHomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ElderDiaryActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".SuccessActivity"
             android:exported="false" />
     </application>
