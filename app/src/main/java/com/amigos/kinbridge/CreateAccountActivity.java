@@ -11,58 +11,69 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class LoginActivity extends AppCompatActivity {
+public class CreateAccountActivity extends AppCompatActivity {
 
     private final UserRepository userRepository = new UserRepository();
 
+    private EditText nameInput;
     private EditText emailInput;
     private EditText passwordInput;
+    private EditText confirmPasswordInput;
+    private TextView nameError;
     private TextView emailError;
     private TextView passwordError;
-    private Button signInButton;
+    private TextView confirmPasswordError;
+    private Button createAccountButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_create_account);
 
+        nameInput = findViewById(R.id.nameInput);
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
+        confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
+        nameError = findViewById(R.id.nameError);
         emailError = findViewById(R.id.emailError);
         passwordError = findViewById(R.id.passwordError);
+        confirmPasswordError = findViewById(R.id.confirmPasswordError);
 
-        signInButton = findViewById(R.id.signInButton);
-        signInButton.setOnClickListener(v -> attemptLogin());
+        createAccountButton = findViewById(R.id.createAccountButton);
+        createAccountButton.setOnClickListener(v -> attemptCreateAccount());
 
-        TextView forgotPassword = findViewById(R.id.forgotPassword);
-        forgotPassword.setOnClickListener(v ->
-                Toast.makeText(this, R.string.reset_unavailable, Toast.LENGTH_SHORT).show());
-
-        TextView createAccountLink = findViewById(R.id.createAccountLink);
-        createAccountLink.setOnClickListener(v ->
-                startActivity(new Intent(this, CreateAccountActivity.class)));
+        TextView signInLink = findViewById(R.id.signInLink);
+        signInLink.setOnClickListener(v -> finish());
     }
 
-    private void attemptLogin() {
+    private void attemptCreateAccount() {
+        String name = nameInput.getText().toString().trim();
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString();
+        String confirmPassword = confirmPasswordInput.getText().toString();
 
+        boolean nameValid = !name.isEmpty();
         boolean emailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches();
         boolean passwordValid = password.length() >= 8;
+        boolean confirmValid = confirmPassword.equals(password) && passwordValid;
 
+        setFieldError(nameInput, nameError, !nameValid);
         setFieldError(emailInput, emailError, !emailValid);
         setFieldError(passwordInput, passwordError, !passwordValid);
+        setFieldError(confirmPasswordInput, confirmPasswordError, !confirmValid);
 
-        if (!emailValid || !passwordValid) {
+        if (!nameValid || !emailValid || !passwordValid || !confirmValid) {
             return;
         }
 
         setLoading(true);
-        userRepository.signIn(email, password, new UserRepository.Callback() {
+        userRepository.createAccount(name, email, password, new UserRepository.Callback() {
             @Override
             public void onSuccess(com.google.firebase.auth.FirebaseUser user) {
-                Intent intent = new Intent(LoginActivity.this, SuccessActivity.class);
+                Intent intent = new Intent(CreateAccountActivity.this, SuccessActivity.class);
                 intent.putExtra(SuccessActivity.EXTRA_EMAIL, email);
+                intent.putExtra(SuccessActivity.EXTRA_TITLE, getString(R.string.account_created));
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 finish();
             }
@@ -70,14 +81,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(String message) {
                 setLoading(false);
-                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
+                Toast.makeText(CreateAccountActivity.this, message, Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void setLoading(boolean loading) {
-        signInButton.setEnabled(!loading);
-        signInButton.setText(loading ? R.string.signing_in : R.string.sign_in);
+        createAccountButton.setEnabled(!loading);
+        createAccountButton.setText(loading ? R.string.creating_account : R.string.create_account);
     }
 
     private void setFieldError(EditText field, TextView error, boolean hasError) {

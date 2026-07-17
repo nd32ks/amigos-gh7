@@ -21,20 +21,23 @@ android {
 
 dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation platform("com.google.firebase:firebase-bom:34.16.0")
+    implementation "com.google.firebase:firebase-auth"
+    implementation "com.google.firebase:firebase-firestore"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
 }
 
-// Align kotlin-stdlib across androidX test transitives (jdk7/jdk8 1.6.21 vs stdlib
-// 1.8.22 cause duplicate-class failures). No Kotlin plugin is applied; these jars
-// only come in transitively.
+// Align kotlin-stdlib across transitive deps (androidX test jars pull 1.6.21,
+// Firebase pulls 2.0.21) to avoid duplicate-class failures and runtime linkage
+// errors. No Kotlin plugin is applied; these jars only come in transitively.
 configurations.all {
     resolutionStrategy {
-        force "org.jetbrains.kotlin:kotlin-stdlib:1.8.22",
-              "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22",
-              "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22",
-              "org.jetbrains.kotlin:kotlin-stdlib-common:1.8.22"
+        force "org.jetbrains.kotlin:kotlin-stdlib:2.0.21",
+              "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.21",
+              "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21",
+              "org.jetbrains.kotlin:kotlin-stdlib-common:2.0.21"
     }
 }
 

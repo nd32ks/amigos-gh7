@@ -15,4 +15,16 @@
     <string name="login_successful">Login successful</string>
     <string name="signed_in_as">Signed in as %1$s</string>
     <string name="log_out">Log out</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="create_account">Create account</string>
+    <string name="create_account_subtitle">Set up your family account to stay close</string>
+    <string name="full_name_label">Full name</string>
+    <string name="full_name_hint">Dewi Anggraini</string>
+    <string name="confirm_password_label">Confirm password</string>
+    <string name="confirm_password_hint">Repeat your password</string>
+    <string name="error_name">Please enter your name</string>
+    <string name="error_confirm">Passwords don\'t match</string>
+    <string name="have_account">Already have an account? Sign in</string>
+    <string name="creating_account">Creating account…</string>
+    <string name="account_created">Account created</string>
 </resources>

@@ -1,0 +1,52 @@
+{
+  "$comment": "KinBridge Tier 1 acute escalation payload. POST /api/v1/alerts (mock: WebSocket broadcast to dashboard channel). Example instance, doubles as schema-by-example.",
+  "alert_id": "alrt_9f3a2c",
+  "schema_version": "1.0.0",
+  "type": "COGNITIVE_ACUTE_T1",
+  "severity": "HIGH",
+  "created_at": "2026-07-17T14:32:08+07:00",
+  "elder": {
+    "profile_id": "elder_0001",
+    "name": "Sri Rahayu Wijaya"
+  },
+  "trigger": {
+    "fact_id": "T1_SPOUSE_NAME",
+    "tier": 1,
+    "category": "core_identity.family",
+    "expected_value": "Budi Wijaya",
+    "recalled_value": "Saya tidak ingat... siapa ya?",
+    "verdict": "miss",
+    "judge_confidence": 0.94,
+    "session_id": "sess_20260717_1420",
+    "transcript_excerpt": [
+      { "role": "companion", "text": "Ngomong-ngomong Bu, bagaimana kabar suami Ibu hari ini?" },
+      { "role": "elder", "text": "Suami saya... saya tidak ingat, siapa ya namanya?" }
+    ]
+  },
+  "cognitive_snapshot": {
+    "cri_session": 33.3,
+    "$cri_derivation": "3 probes: T1 miss (w=10,s=0), T2 exact (w=3,s=1), T3 exact (w=2,s=1) -> 100*(5/15)",
+    "ewma_7d": 62.5,
+    "ewma_delta_7d": -18.3,
+    "t1_misses_30d": 1,
+    "trend_direction": "declining"
+  },
+  "companion_action_taken": {
+    "action": "CALM_REASSURANCE_PIVOT",
+    "spoken_text": "Sepertinya Ibu sudah lelah hari ini. Kita istirahat dulu ya. Mau saya teleponkan Dewi supaya Ibu bisa dengar suaranya?",
+    "call_offer_contact_id": "fam_01"
+  },
+  "notification": {
+    "target_contact_id": "fam_01",
+    "push_device_token": "MOCK_FCM_TOKEN_DEWI_01",
+    "priority": "high",
+    "title": "KinBridge: Ibu Sri may need a check-in",
+    "body": "During today's conversation, Ibu Sri had difficulty recalling a core family memory. She is calm and the companion is with her. Tap to view details or call now.",
+    "deep_link": "kinbridge://dashboard/alerts/alrt_9f3a2c",
+    "actions": [
+      { "id": "CALL_NOW", "label": "Call Ibu Sri" },
+      { "id": "VIEW_TREND", "label": "View wellness trend" }
+    ]
+  },
+  "disclaimer": "Early screening signal only. Not a medical diagnosis. Consult a healthcare professional for clinical assessment."
+}

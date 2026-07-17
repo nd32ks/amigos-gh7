@@ -89,7 +89,7 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/cormorant_garamond_light"
                         android:letterSpacing="-0.015"
-                        android:text="@string/welcome_back"
+                        android:text="@string/create_account"
                         android:textColor="@color/ink_black"
                         android:textSize="34sp" />
 
@@ -97,7 +97,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="@string/login_subtitle"
+                        android:gravity="center"
+                        android:text="@string/create_account_subtitle"
                         android:textColor="@color/ash_gray"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -115,6 +116,41 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/full_name_label"
+                    android:textColor="@color/ash_gray"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/nameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="name"
+                    android:background="@drawable/bg_input"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/full_name_hint"
+                    android:importantForAutofill="yes"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLines="1"
+                    android:padding="14dp"
+                    android:textColor="@color/ink_black"
+                    android:textColorHint="@color/mist_gray"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/nameError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/error_name"
+                    android:textColor="@color/slate_gray"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/email_label"
                     android:textColor="@color/ash_gray"
@@ -159,7 +195,7 @@
                     android:id="@+id/passwordInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:autofillHints="password"
+                    android:autofillHints="newPassword"
                     android:background="@drawable/bg_input"
                     android:fontFamily="@font/inter_regular"
                     android:hint="@string/password_hint"
@@ -181,47 +217,63 @@
                     android:textSize="12sp"
                     android:visibility="gone" />
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/confirm_password_label"
+                    android:textColor="@color/ash_gray"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/confirmPasswordInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="newPassword"
+                    android:background="@drawable/bg_input"
+                    android:fontFamily="@font/inter_regular"
+                    android:hint="@string/confirm_password_hint"
+                    android:importantForAutofill="yes"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:padding="14dp"
+                    android:textColor="@color/ink_black"
+                    android:textColorHint="@color/mist_gray"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/confirmPasswordError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/error_confirm"
+                    android:textColor="@color/slate_gray"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
                 <Button
-                    android:id="@+id/signInButton"
+                    android:id="@+id/createAccountButton"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="24dp"
                     android:background="@drawable/bg_button_pill"
                     android:stateListAnimator="@null"
-                    android:text="@string/sign_in"
+                    android:text="@string/create_account"
                     android:textAllCaps="false"
                     android:textColor="@color/pure_white"
                     android:textSize="15sp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/signInLink"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/forgotPassword"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:padding="8dp"
-                    android:text="@string/forgot_password"
-                    android:textColor="@color/ink_black"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/createAccountLink"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="end"
-                    android:padding="8dp"
-                    android:text="@string/create_account"
-                    android:textColor="@color/ink_black"
-                    android:textSize="15sp" />
-            </LinearLayout>
+                android:layout_marginTop="20dp"
+                android:padding="8dp"
+                android:text="@string/have_account"
+                android:textColor="@color/ink_black"
+                android:textSize="15sp" />
         </LinearLayout>
     </ScrollView>
 
