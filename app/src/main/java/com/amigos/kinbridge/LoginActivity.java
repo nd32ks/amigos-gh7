@@ -20,6 +20,7 @@ public class LoginActivity extends AppCompatActivity {
     /** Keeps the font panel open across the recreate that applies a new scale. */
     private static boolean fontPanelOpen;
 
+    private String role;
     private EditText emailInput;
     private EditText passwordInput;
     private TextView emailError;
@@ -36,6 +37,13 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        role = getIntent().getStringExtra(OnboardingActivity.ROLE_EXTRA);
+        if (role == null) {
+            role = OnboardingActivity.ROLE_SENIOR;
+        }
+        ((TextView) findViewById(R.id.loginSubtitle)).setText(
+                getString(R.string.login_as_role, OnboardingActivity.roleDisplayName(this, role)));
+
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         emailError = findViewById(R.id.emailError);
@@ -49,8 +57,11 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.reset_unavailable, Toast.LENGTH_SHORT).show());
 
         TextView createAccountLink = findViewById(R.id.createAccountLink);
-        createAccountLink.setOnClickListener(v ->
-                startActivity(new Intent(this, CreateAccountActivity.class)));
+        createAccountLink.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CreateAccountActivity.class);
+            intent.putExtra(OnboardingActivity.ROLE_EXTRA, role);
+            startActivity(intent);
+        });
 
         setupFontControl();
     }
@@ -109,9 +120,11 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         setLoading(true);
-        userRepository.signIn(email, password, new UserRepository.Callback() {
+        userRepository.signIn(email, password, role, new UserRepository.Callback() {
             @Override
             public void onSuccess(com.google.firebase.auth.FirebaseUser user) {
+                getSharedPreferences(OnboardingActivity.PREFS, MODE_PRIVATE)
+                        .edit().putString(OnboardingActivity.KEY_ROLE, role).apply();
                 Intent intent = new Intent(LoginActivity.this, SuccessActivity.class);
                 intent.putExtra(SuccessActivity.EXTRA_EMAIL, email);
                 startActivity(intent);
@@ -122,6 +135,15 @@ public class LoginActivity extends AppCompatActivity {
             public void onError(String message) {
                 setLoading(false);
                 Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onRoleMismatch(String actualRole) {
+                setLoading(false);
+                Toast.makeText(LoginActivity.this,
+                        getString(R.string.error_role_mismatch,
+                                OnboardingActivity.roleDisplayName(LoginActivity.this, actualRole)),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }

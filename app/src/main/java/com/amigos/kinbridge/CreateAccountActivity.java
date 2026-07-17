@@ -33,12 +33,20 @@ public class CreateAccountActivity extends AppCompatActivity {
     private TextView genderFemale;
     private TextView genderMale;
     private String selectedGender;
+    private String role;
     private Button createAccountButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_account);
+
+        role = getIntent().getStringExtra(OnboardingActivity.ROLE_EXTRA);
+        if (role == null) {
+            role = OnboardingActivity.ROLE_SENIOR;
+        }
+        ((TextView) findViewById(R.id.createSubtitle)).setText(
+                getString(R.string.create_as_role, OnboardingActivity.roleDisplayName(this, role)));
 
         nameInput = findViewById(R.id.nameInput);
         emailInput = findViewById(R.id.emailInput);
@@ -92,9 +100,11 @@ public class CreateAccountActivity extends AppCompatActivity {
         }
 
         setLoading(true);
-        userRepository.createAccount(name, selectedGender, email, password, new UserRepository.Callback() {
+        userRepository.createAccount(name, selectedGender, email, password, role, new UserRepository.Callback() {
             @Override
             public void onSuccess(com.google.firebase.auth.FirebaseUser user) {
+                getSharedPreferences(OnboardingActivity.PREFS, MODE_PRIVATE)
+                        .edit().putString(OnboardingActivity.KEY_ROLE, role).apply();
                 Intent intent = new Intent(CreateAccountActivity.this, SuccessActivity.class);
                 intent.putExtra(SuccessActivity.EXTRA_EMAIL, email);
                 intent.putExtra(SuccessActivity.EXTRA_TITLE, getString(R.string.account_created));

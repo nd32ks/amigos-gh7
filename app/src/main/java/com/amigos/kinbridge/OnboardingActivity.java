@@ -47,6 +47,19 @@ public class OnboardingActivity extends AppCompatActivity {
         return CompanionActivity.class;
     }
 
+    static final String ROLE_EXTRA = "com.amigos.kinbridge.ROLE";
+
+    /** Display name for a role in the current locale. */
+    static String roleDisplayName(Context context, String role) {
+        if (ROLE_GUARDIAN.equals(role)) {
+            return context.getString(R.string.role_guardian_name);
+        }
+        if (ROLE_CARE.equals(role)) {
+            return context.getString(R.string.role_care_name);
+        }
+        return context.getString(R.string.role_elder);
+    }
+
     private static final long FADE_MS = 150;
     private static final long GREETING_SWAP_MS = 120;
     private static final long GREETING_PERIOD_MS = 1800;
@@ -86,6 +99,18 @@ public class OnboardingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+
+        // A live session skips welcome + login and goes straight to the
+        // account's role home. Without one, every cold start shows the
+        // language greeting (and logging out always returns here).
+        com.google.firebase.auth.FirebaseUser currentUser =
+                com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            startActivity(new Intent(this, routeForRole(this)));
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_onboarding);
 
         fontPreview = findViewById(R.id.fontPreview);
@@ -212,7 +237,9 @@ public class OnboardingActivity extends AppCompatActivity {
         transitioning = true;
         prefs.edit().putString(KEY_ROLE, role).putInt(KEY_STEP, 1).apply();
         fadeOut(() -> {
-            startActivity(new Intent(this, routeForRole(this)));
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra(ROLE_EXTRA, role);
+            startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         });
@@ -266,7 +293,9 @@ public class OnboardingActivity extends AppCompatActivity {
                 .putInt(KEY_STEP, 1)
                 .apply();
         fadeOut(() -> {
-            startActivity(new Intent(this, CompanionActivity.class));
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.putExtra(ROLE_EXTRA, ROLE_SENIOR);
+            startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         });
