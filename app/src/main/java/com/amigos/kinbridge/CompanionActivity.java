@@ -106,6 +106,11 @@ public class CompanionActivity extends AppCompatActivity {
         });
         companionText.setOnClickListener(v -> onDemoTap());
 
+        findViewById(R.id.companionBack).setOnClickListener(v -> {
+            startActivity(new android.content.Intent(this, OnboardingActivity.class));
+            finish();
+        });
+
         guidedRow = findViewById(R.id.guidedRow);
         inputRow = findViewById(R.id.inputRow);
         findViewById(R.id.guidedYes).setOnClickListener(v -> answerGuided(false));
@@ -342,14 +347,26 @@ public class CompanionActivity extends AppCompatActivity {
             confidence = confidenceOf(verdict);
         }
 
-        sessionEvents.add(new Event(fact.tier, verdict));
+        // V2.3 + MASTER_CHECKLIST §5: a cocok_kata (2-choice) exact earns a
+        // discounted 0.75 credit — guessing right is weak signal.
+        boolean cocokKata = "playful".equals(deliveryStyle) && "cocok_kata".equals(gameStyle);
+        sessionEvents.add(cocokKata && verdict == Verdict.EXACT
+                ? new Event(fact.tier, verdict, 0.75)
+                : new Event(fact.tier, verdict));
         probeAnswerIndices.add(elderTurns.size() - 1); // probes are scoring data, not stories
         repository.saveEvent(fact.tier, verdict.name().toLowerCase(),
                 ScoringEngine.rawPoints(verdict, fact.tier),
-                ScoringEngine.credit(verdict), eventLabel(verdict, fact));
+                ScoringEngine.credit(verdict), eventLabel(verdict, fact), deliveryStyle);
         repository.markProbed(this, fact);
         armedProbe = null;
         turnsSinceProbe = 0;
+
+        // MASTER_CHECKLIST §5: a cocok_kata T1 miss never auto-fires acute —
+        // a mis-tap is not "couldn't recall her husband". Warm ack, no pivot.
+        if (cocokKata && fact.tier == 1 && verdict == Verdict.MISS) {
+            companionSay(getString(R.string.ack_warm));
+            return;
+        }
 
         int t2Misses = 0;
         for (Event e : sessionEvents) {
@@ -397,9 +414,29 @@ public class CompanionActivity extends AppCompatActivity {
         }
         if (next != null) {
             armedProbe = next;
-            companionSay(next.probe());
+            // V2.3: roughly one probe in three MAY use a game phrasing, never
+            // two in a row. Same fact, same judge, same scoring downstream.
+            gameCounter++;
+            if (!next.gameVariants.isEmpty() && !lastProbeWasGame && gameCounter >= 3) {
+                ElderFact.GameVariant variant = next.gameVariants.get(0);
+                deliveryStyle = "playful";
+                gameStyle = variant.style;
+                lastProbeWasGame = true;
+                gameCounter = 0;
+                companionSay(variant.promptId);
+            } else {
+                deliveryStyle = "conversational";
+                gameStyle = null;
+                lastProbeWasGame = false;
+                companionSay(next.probe());
+            }
         }
     }
+
+    private int gameCounter;
+    private boolean lastProbeWasGame;
+    private String deliveryStyle = "conversational";
+    private String gameStyle;
 
     // ---- Social match engine (V1: keyword → mock group) ----
 
@@ -520,6 +557,8 @@ public class CompanionActivity extends AppCompatActivity {
         armedProbe = fact;
         forcedVerdict = Verdict.MISS;
         forcedConfidence = 0.94;
+        deliveryStyle = "conversational";
+        gameStyle = null;
         companionSay(fact.probe());
         handler.postDelayed(() ->
                 onElderTurn("Suami saya... saya tidak ingat, siapa ya namanya?"), 900);

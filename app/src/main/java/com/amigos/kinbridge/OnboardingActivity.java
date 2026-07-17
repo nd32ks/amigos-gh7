@@ -236,6 +236,16 @@ public class OnboardingActivity extends AppCompatActivity {
         if (transitioning) {
             return;
         }
+        // Picking the ALREADY-active locale triggers no recreate — so the
+        // fade-out would strand a dead white screen. Swap steps in place instead.
+        String current = AppCompatDelegate.getApplicationLocales().toLanguageTags();
+        boolean same = ("id".equals(languageTag) && (current.startsWith("id") || current.startsWith("in")))
+                || ("en".equals(languageTag) && current.startsWith("en"));
+        if (same) {
+            prefs.edit().putInt(KEY_STEP, 2).apply();
+            crossfadeSteps(findViewById(R.id.stepLanguage), findViewById(R.id.stepRole));
+            return;
+        }
         transitioning = true;
         prefs.edit().putInt(KEY_STEP, 2).apply();
         pendingFadeIn = true;

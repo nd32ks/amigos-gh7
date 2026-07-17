@@ -180,6 +180,16 @@
                         android:textColor="@color/slate_gray"
                         android:textSize="15sp" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/flavorLine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/games_flavor"
+                    android:textColor="@color/slate_gray"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Reminder adherence card -->

@@ -166,7 +166,8 @@ public class ElderRepository {
 
     // ---- Live state (events, trend, alerts) ----
 
-    public void saveEvent(int tier, String verdict, int rawPoints, double criCredit, String label) {
+    public void saveEvent(int tier, String verdict, int rawPoints, double criCredit,
+                          String label, String deliveryStyle) {
         Map<String, Object> event = new HashMap<>();
         event.put("ts", System.currentTimeMillis());
         event.put("tier", tier);
@@ -174,6 +175,7 @@ public class ElderRepository {
         event.put("rawPoints", rawPoints);
         event.put("criCredit", criCredit);
         event.put("label", label);
+        event.put("deliveryStyle", deliveryStyle); // V2.3 §C: flavor metadata, never a scoring input
         db.collection(ELDERS).document(ELDER_ID).collection("events").add(event);
     }
 

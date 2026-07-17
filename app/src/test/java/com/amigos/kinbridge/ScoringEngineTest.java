@@ -99,4 +99,22 @@ public class ScoringEngineTest {
         assertEquals(Escalation.NONE,
                 ScoringEngine.escalation(Verdict.EXACT, 0.98, 1, 0, 0, 90));
     }
+
+    @Test
+    public void cocokKataExact_earnsDiscountedCredit() {
+        // MASTER_CHECKLIST §5 fix: recognition exact on a 2-choice game earns
+        // s=0.75, not 1.0 — 50% guess chance must not inflate the trend.
+        List<Event> events = Arrays.asList(
+                new Event(1, Verdict.EXACT, 0.75),
+                new Event(3, Verdict.EXACT));
+        // 100 × (10×0.75 + 2×1.0) / 12 = 79.17
+        assertEquals(79.166, ScoringEngine.cri(events), 0.01);
+    }
+
+    @Test
+    public void cocokKataMiss_countsFullWeight() {
+        // A miss on the 2-choice game is full weight (strong signal)
+        List<Event> events = Arrays.asList(new Event(1, Verdict.MISS));
+        assertEquals(0.0, ScoringEngine.cri(events), 0.0);
+    }
 }

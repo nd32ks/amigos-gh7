@@ -15,14 +15,25 @@ public final class ScoringEngine {
 
     public enum Escalation {ACUTE, WARNING, SILENT, NONE}
 
-    /** One scored probe: tier weight w and CRI credit s. */
+    /** One scored probe: tier weight w and CRI credit s (optional override). */
     public static final class Event {
         public final int tier;
         public final Verdict verdict;
+        /** When >= 0, replaces the verdict-derived credit (e.g. cocok_kata exact = 0.75). */
+        public final double creditOverride;
 
         public Event(int tier, Verdict verdict) {
+            this(tier, verdict, -1);
+        }
+
+        public Event(int tier, Verdict verdict, double creditOverride) {
             this.tier = tier;
             this.verdict = verdict;
+            this.creditOverride = creditOverride;
+        }
+
+        public double credit() {
+            return creditOverride >= 0 ? creditOverride : ScoringEngine.credit(verdict);
         }
     }
 
@@ -84,7 +95,7 @@ public final class ScoringEngine {
         double weights = 0;
         for (Event e : events) {
             int w = tierWeight(e.tier);
-            weighted += w * credit(e.verdict);
+            weighted += w * e.credit();
             weights += w;
         }
         return weights == 0 ? 0 : 100.0 * weighted / weights;

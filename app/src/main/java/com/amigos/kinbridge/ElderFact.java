@@ -23,6 +23,14 @@ public class ElderFact {
     public long validUntilMs; // 0 = no expiry
     public long lastProbedAt;
 
+    /** One playful phrasing of this fact (V2.3 §A — optional, additive). */
+    public static class GameVariant {
+        public String style; // cocok_kata | tebak_angka | cerita_foto
+        public String promptId;
+    }
+
+    public List<GameVariant> gameVariants = new ArrayList<>();
+
     public boolean isEligible(long nowMs) {
         if (validUntilMs > 0 && nowMs > validUntilMs) {
             return false;
@@ -51,6 +59,18 @@ public class ElderFact {
         f.cooldownHours = o.optLong("probe_cooldown_hours", 24);
         f.validUntilMs = parseIso(o.optString("valid_until", null));
         f.lastProbedAt = 0;
+        JSONArray variants = o.optJSONArray("game_variants");
+        if (variants != null) {
+            for (int i = 0; i < variants.length(); i++) {
+                JSONObject v = variants.optJSONObject(i);
+                if (v != null) {
+                    GameVariant variant = new GameVariant();
+                    variant.style = v.optString("style");
+                    variant.promptId = v.optString("prompt_id");
+                    f.gameVariants.add(variant);
+                }
+            }
+        }
         return f;
     }
 

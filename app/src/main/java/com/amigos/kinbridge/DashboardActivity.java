@@ -167,16 +167,22 @@ public class DashboardActivity extends AppCompatActivity {
         eventsFeed.removeAllViews();
         long startOfDay = startOfToday();
         int today = 0;
+        boolean playfulThisWeek = false;
         for (DocumentSnapshot doc : docs) {
             Long ts = doc.getLong("ts");
             String verdict = doc.getString("verdict");
             if (ts != null && ts >= startOfDay && !"match".equals(verdict)) {
                 today++;
             }
+            if (ts != null && ts >= System.currentTimeMillis() - 7L * 24 * 3600_000L
+                    && "playful".equals(doc.getString("deliveryStyle"))) {
+                playfulThisWeek = true;
+            }
             addEventRow(verdict, doc.getString("label"),
                     doc.getLong("tier") != null ? doc.getLong("tier").intValue() : 3);
         }
         todayCount.setText(getString(R.string.moments_scored, today));
+        findViewById(R.id.flavorLine).setVisibility(playfulThisWeek ? View.VISIBLE : View.GONE);
     }
 
     // ---- Tabs: Trend (clinical) | Diary (love, V2.1 §1.3) ----
