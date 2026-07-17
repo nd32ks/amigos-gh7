@@ -38,3 +38,4 @@
 - 2026-07-17 — Voice layer: mic button → SpeechRecognizer (id-ID/en-US per locale) auto-sends the turn; Kenang speaks every message via TextToSpeech (0.9 rate, locale-matched). RECORD_AUDIO requested at tap.
 - 2026-07-17 — Evidence: 21/21 unit tests green (scoring 14, dump parser 3, friends 4).
 - 2026-07-17 — Navigation: floating right-edge tab (hairline half-pill, programmatic, zero layout intrusion) on companion/dashboard/care surfaces → slide-in right drawer with all features: Kenang, Dashboard, Care panel, Diary (deep-link opens dashboard on the diary tab), Profile setup, Role select, Sign in.
+- 2026-07-17 — SHIP REPORT protocol adopted (user-pasted format). Filed: agents/V3/reports/SHIP_2026-07-17_01_full_inventory.md (24 claim blocks, strict grading — no UI-runtime check marked DONE without execution) + SHIP_2026-07-17_GATE_A.md (Gate A = PARTIAL: logic green, device wire-run pending).

@@ -49,6 +49,7 @@
     <string name="ack_exact">That\'s wonderful, Ibu!</string>
     <string name="ack_warm">Thank you for sharing, Ibu.</string>
     <string name="ack_neutral">I see. Tell me more about your day.</string>
+    <string name="companion_thinking">Kenang is thinking…</string>
     <string name="pivot_t1">You seem a little tired today. Let\'s rest for a bit. Shall I call Dewi so you can hear her voice?</string>
     <string name="loading_elder">One moment…</string>
     <string name="elder_subtitle">%1$s · %2$s</string>

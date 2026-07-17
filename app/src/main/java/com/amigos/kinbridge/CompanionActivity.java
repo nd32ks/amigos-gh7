@@ -55,6 +55,8 @@ import java.util.Set;
 public class CompanionActivity extends AppCompatActivity {
 
     private final ElderRepository repository = new ElderRepository();
+    private final DailyLogStore dailyLog = new DailyLogStore("Ibu");
+    private final List<GeminiClient.ChatTurn> chatHistory = new ArrayList<>();
     private final List<Event> sessionEvents = new ArrayList<>();
     private final Set<String> shownMatches = new HashSet<>();
     private final List<String> elderTurns = new ArrayList<>();
@@ -144,6 +146,7 @@ public class CompanionActivity extends AppCompatActivity {
             @Override
             public void onLoaded(ElderProfile loaded) {
                 profile = loaded;
+                dailyLog.setElderName(loaded.preferredAddress);
                 companionSay(getString(R.string.companion_greeting));
             }
 
@@ -206,8 +209,27 @@ public class CompanionActivity extends AppCompatActivity {
             return;
         }
         turnsSinceProbe++;
-        companionSay(getString(R.string.ack_neutral));
-        maybeProbe();
+        if (maybeProbe()) {
+            return; // the scripted probe question is Kenang's reply this turn
+        }
+        chatWithKenang();
+    }
+
+    /** Free-form conversational reply from Gemini; canned ack when offline. */
+    private void chatWithKenang() {
+        companionText.setText(R.string.companion_thinking);
+        GeminiClient.chat(new ArrayList<>(chatHistory), profile.preferredAddress,
+                profile.city, indonesian(), new GeminiClient.ChatCallback() {
+                    @Override
+                    public void onReply(String reply) {
+                        companionSay(reply);
+                    }
+
+                    @Override
+                    public void onError() {
+                        companionSay(getString(R.string.ack_neutral));
+                    }
+                });
     }
 
     private boolean hasFriendIntent(String text) {
@@ -432,9 +454,9 @@ public class CompanionActivity extends AppCompatActivity {
         }
     }
 
-    private void maybeProbe() {
+    private boolean maybeProbe() {
         if (probesDisabled || turnsSinceProbe < 3) {
-            return;
+            return false;
         }
         // Scheduler (prompts.md §2): highest-priority tier first, cooldown-gated.
         long now = System.currentTimeMillis();
@@ -462,7 +484,9 @@ public class CompanionActivity extends AppCompatActivity {
                 lastProbeWasGame = false;
                 companionSay(next.probe());
             }
+            return true;
         }
+        return false;
     }
 
     private int gameCounter;
@@ -661,7 +685,30 @@ public class CompanionActivity extends AppCompatActivity {
         }
         if (!elderTurns.isEmpty()) {
             generateDiary();
+            appendDailySummary();
         }
+    }
+
+    /**
+     * Gemini-written diary narrative appended to today's activity log file.
+     * The raw transcript is already on disk; on failure it stays as-is.
+     */
+    private void appendDailySummary() {
+        String transcript = dailyLog.readToday(this);
+        if (transcript.isEmpty()) {
+            return;
+        }
+        GeminiClient.summarizeDay(transcript, indonesian(), new GeminiClient.SummaryCallback() {
+            @Override
+            public void onSummary(String summary) {
+                dailyLog.appendSummary(CompanionActivity.this, summary);
+            }
+
+            @Override
+            public void onError() {
+                // Raw transcript remains — never blocks session close
+            }
+        });
     }
 
     /**
@@ -853,6 +900,11 @@ public class CompanionActivity extends AppCompatActivity {
     }
 
     private void addTranscript(boolean elder, String text) {
+        chatHistory.add(new GeminiClient.ChatTurn(elder, text));
+        while (chatHistory.size() > 12) {
+            chatHistory.remove(0); // bounded context window for the chat API
+        }
+        dailyLog.appendTurn(this, elder, text);
         TextView row = new TextView(this);
         row.setTextSize(15);
         row.setText(elder ? "Ibu: " + text : "Kenang: " + text);

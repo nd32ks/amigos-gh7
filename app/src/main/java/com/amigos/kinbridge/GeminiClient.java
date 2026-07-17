@@ -148,18 +148,127 @@ public final class GeminiClient {
         }).start();
     }
 
+    // ---- Companion chat (multi-turn, plain text out) ----
+
+    /** One turn in the companion conversation. */
+    public static final class ChatTurn {
+        public final boolean elder;
+        public final String text;
+
+        public ChatTurn(boolean elder, String text) {
+            this.elder = elder;
+            this.text = text;
+        }
+    }
+
+    public interface ChatCallback {
+        void onReply(String reply);
+
+        void onError();
+    }
+
+    public static void chat(List<ChatTurn> history, String elderName, String elderCity,
+                            boolean indonesian, ChatCallback callback) {
+        String language = indonesian ? "Bahasa Indonesia" : "English";
+        String system =
+                "You are Kenang, a warm and patient conversational companion for " + elderName
+                + ", an elderly Indonesian woman living with Alzheimer's in " + elderCity + ".\n\n"
+                + "Rules:\n"
+                + "- Speak in " + language + " only.\n"
+                + "- Use short, simple sentences — at most 2-3 per reply.\n"
+                + "- Be warm, gentle, and encouraging, like a caring friend.\n"
+                + "- NEVER correct, contradict, or quiz her, even if she says something "
+                + "confused or repeated.\n"
+                + "- Gently ask about her day, her activities, family, food, and fond "
+                + "memories — she loves to reminisce.\n"
+                + "- If she seems sad or confused, comfort her softly.\n"
+                + "- Never give medical advice; if she mentions pain or feeling unwell, "
+                + "kindly suggest telling her family.\n"
+                + "- Never mention that you are evaluating her, or anything about scores, "
+                + "tests, or memory checks.\n"
+                + "- Plain text only — no lists, markdown, or emojis.";
+
+        new Thread(() -> {
+            try {
+                // Gemini requires alternating user/model turns starting with user —
+                // drop leading model turns and merge consecutive same-role turns.
+                JSONArray contents = new JSONArray();
+                for (ChatTurn turn : history) {
+                    String role = turn.elder ? "user" : "model";
+                    JSONObject last = contents.length() > 0
+                            ? contents.getJSONObject(contents.length() - 1) : null;
+                    if (last != null && role.equals(last.optString("role"))) {
+                        last.getJSONArray("parts").getJSONObject(0)
+                                .put("text", last.getJSONArray("parts").getJSONObject(0)
+                                        .getString("text") + "\n" + turn.text);
+                        continue;
+                    }
+                    if (last == null && !turn.elder) {
+                        continue; // leading model turn — API must start with user
+                    }
+                    contents.put(new JSONObject().put("role", role).put("parts",
+                            new JSONArray().put(new JSONObject().put("text", turn.text))));
+                }
+                String reply = post(system, contents, 0.7, false).trim();
+                MAIN.post(() -> callback.onReply(reply));
+            } catch (Exception e) {
+                MAIN.post(callback::onError);
+            }
+        }).start();
+    }
+
+    // ---- Daily activity summary (diary-style narrative, plain text out) ----
+
+    public interface SummaryCallback {
+        void onSummary(String summary);
+
+        void onError();
+    }
+
+    public static void summarizeDay(String transcript, boolean indonesian,
+                                    SummaryCallback callback) {
+        String language = indonesian ? "Bahasa Indonesia" : "English";
+        String system =
+                "You write a short diary entry about an elderly Indonesian woman's day, "
+                + "based on her chat transcript with her companion Kenang. Write in "
+                + language + ", third person about 'Ibu'. 3-6 sentences covering: what she "
+                + "did today, what she ate, who she mentioned, her mood, and any fond "
+                + "memories or life stories she shared. Warm, diary-like tone. Plain text "
+                + "only — no headings, no lists, no clinical or assessment language.";
+        String user = "TRANSCRIPT OF TODAY'S CONVERSATION:\n" + transcript;
+
+        new Thread(() -> {
+            try {
+                JSONArray contents = new JSONArray().put(new JSONObject().put("role", "user")
+                        .put("parts", new JSONArray().put(new JSONObject().put("text", user))));
+                String summary = post(system, contents, 0.3, false).trim();
+                MAIN.post(() -> callback.onSummary(summary));
+            } catch (Exception e) {
+                MAIN.post(callback::onError);
+            }
+        }).start();
+    }
+
     // ---- Transport ----
 
     private static String post(String systemInstruction, String userText, double temperature)
             throws Exception {
+        JSONArray contents = new JSONArray().put(new JSONObject().put("parts",
+                new JSONArray().put(new JSONObject().put("text", userText))));
+        return post(systemInstruction, contents, temperature, true);
+    }
+
+    private static String post(String systemInstruction, JSONArray contents, double temperature,
+                               boolean jsonOut) throws Exception {
         JSONObject body = new JSONObject();
         body.put("system_instruction", new JSONObject().put("parts",
                 new JSONArray().put(new JSONObject().put("text", systemInstruction))));
-        body.put("contents", new JSONArray().put(new JSONObject().put("parts",
-                new JSONArray().put(new JSONObject().put("text", userText)))));
-        body.put("generationConfig", new JSONObject()
-                .put("temperature", temperature)
-                .put("responseMimeType", "application/json"));
+        body.put("contents", contents);
+        JSONObject generationConfig = new JSONObject().put("temperature", temperature);
+        if (jsonOut) {
+            generationConfig.put("responseMimeType", "application/json");
+        }
+        body.put("generationConfig", generationConfig);
 
         HttpURLConnection conn = (HttpURLConnection) new URL(ENDPOINT).openConnection();
         conn.setRequestMethod("POST");

@@ -49,6 +49,7 @@
     <string name="ack_exact">Bagus sekali, Ibu!</string>
     <string name="ack_warm">Terima kasih sudah bercerita, Ibu.</string>
     <string name="ack_neutral">Begitu ya. Ceritakan lebih banyak tentang hari Ibu.</string>
+    <string name="companion_thinking">Kenang sedang berpikir…</string>
     <string name="pivot_t1">Sepertinya Ibu sudah lelah hari ini. Kita istirahat dulu ya. Mau saya teleponkan Dewi supaya Ibu bisa dengar suaranya?</string>
     <string name="loading_elder">Sebentar…</string>
     <string name="elder_subtitle">%1$s · %2$s</string>
