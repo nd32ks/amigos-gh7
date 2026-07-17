@@ -110,8 +110,55 @@ public final class GeminiClient {
         }).start();
     }
 
-    // ---- Context-dump extraction (V2 §5 — temp 0, tiered facts JSON out) ----
+    // ---- Companion replies (prompts.md §1 persona — Kenang speaks) ----
 
+    public interface ReplyCallback {
+        void onResult(String reply);
+
+        void onError();
+    }
+
+    /**
+     * Generates Kenang's conversational reply to an elder turn. Persona is the
+     * prompts.md §1 companion: warm, honorific "Ibu", short sentences, never
+     * clinical, never corrects her. Temperature 0.7 for natural warmth (the
+     * judge stays temp 0 — scoring determinism is unaffected).
+     */
+    public static void companionReply(String elderText, boolean indonesian, ReplyCallback callback) {
+        String language = indonesian ? "Bahasa Indonesia" : "English";
+        String clinicalBan = indonesian
+                ? "Never use clinical words: no \"tes\", \"pemeriksaan\", \"demensia\", \"penilaian\"."
+                : "Never use clinical words: no \"test\", \"screening\", \"dementia\", \"score\".";
+        String system =
+                "You are \"Kenang\", a warm voice companion for an elderly woman.\n"
+                + "LANGUAGE\n"
+                + "- Speak ONLY " + language + ". Warm, respectful register: address her as \"Ibu\".\n"
+                + "- Short sentences (max ~15 words). One question at most. Never rush.\n"
+                + "- " + clinicalBan + "\n"
+                + "PERSONA\n"
+                + "- You are a friendly companion, like a thoughtful neighbor. You enjoy "
+                + "hearing her stories and respond with genuine warmth and curiosity.\n"
+                + "- If she says something factually wrong, DO NOT correct her. "
+                + "Respond warmly and move on.\n"
+                + "- Reply in 1-3 short sentences, conversational, never listy.\n\n"
+                + "Output JSON only: {\"reply\":\"<her companion's answer>\"}";
+
+        new Thread(() -> {
+            try {
+                JSONObject result = new JSONObject(post(system, elderText, 0.7));
+                String reply = result.optString("reply");
+                if (reply.isEmpty()) {
+                    throw new IllegalStateException("empty reply");
+                }
+                String finalReply = reply;
+                MAIN.post(() -> callback.onResult(finalReply));
+            } catch (Exception e) {
+                MAIN.post(callback::onError);
+            }
+        }).start();
+    }
+
+    // ---- Context-dump extraction (V2 §5 — temp 0, tiered facts JSON out) ----
     public interface ExtractCallback {
         void onResult(List<DumpParser.ExtractedFact> facts);
 
@@ -237,6 +284,39 @@ public final class GeminiClient {
                 + "memories or life stories she shared. Warm, diary-like tone. Plain text "
                 + "only — no headings, no lists, no clinical or assessment language.";
         String user = "TRANSCRIPT OF TODAY'S CONVERSATION:\n" + transcript;
+
+        new Thread(() -> {
+            try {
+                JSONArray contents = new JSONArray().put(new JSONObject().put("role", "user")
+                        .put("parts", new JSONArray().put(new JSONObject().put("text", user))));
+                String summary = post(system, contents, 0.3, false).trim();
+                MAIN.post(() -> callback.onSummary(summary));
+            } catch (Exception e) {
+                MAIN.post(callback::onError);
+            }
+        }).start();
+    }
+
+    // ---- Diary dictation (key information only, plain text out) ----
+
+    /**
+     * Elder dictates freely; Gemini keeps only the key information — activities,
+     * media titles/characters, people, meals, feelings, memories — preserving
+     * specific names and details verbatim, never the whole conversation.
+     */
+    public static void summarizeDiaryEntry(String transcript, boolean indonesian,
+                                           SummaryCallback callback) {
+        String language = indonesian ? "Bahasa Indonesia" : "English";
+        String system =
+                "You extract the key information from an elderly Indonesian woman's "
+                + "dictated diary entry (transcribed speech, may contain STT noise). "
+                + "Write in " + language + ", third person about 'Ibu'. 2-5 short "
+                + "sentences capturing only the key points: what she did, what she "
+                + "watched, read, or listened to (keep titles, characters, and details "
+                + "exactly as she said them), who she met or spoke about, what she ate, "
+                + "how she felt, and any memories from her past she shared. Plain text "
+                + "only — no headings, no lists, no clinical language.";
+        String user = "DICTATED DIARY ENTRY:\n" + transcript;
 
         new Thread(() -> {
             try {

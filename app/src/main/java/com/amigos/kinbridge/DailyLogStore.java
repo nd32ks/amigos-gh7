@@ -44,6 +44,12 @@ public class DailyLogStore {
         append(context, "\n--- Ringkasan aktivitas (" + time + ") ---\n" + summary + "\n");
     }
 
+    /** Appends a dictated diary entry, stamped with full date + time. */
+    public synchronized void appendDiaryEntry(Context context, String entry) {
+        String stamp = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date());
+        append(context, formatDiarySection(stamp, entry) + "\n");
+    }
+
     /** Full text of today's file, or "" if nothing was logged yet. */
     public String readToday(Context context) {
         File file = todayFile(context);

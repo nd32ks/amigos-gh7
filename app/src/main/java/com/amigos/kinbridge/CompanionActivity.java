@@ -442,9 +442,8 @@ public class CompanionActivity extends AppCompatActivity {
                 companionSay(getString(R.string.ack_warm));
                 return;
             default:
-                // Never correct her — warm ack and move on (prompts.md §1).
-                companionSay(verdict == Verdict.EXACT
-                        ? getString(R.string.ack_exact) : getString(R.string.ack_warm));
+                // Never correct her — warm AI reply and move on (prompts.md §1).
+                chatWithKenang();
         }
     }
 
