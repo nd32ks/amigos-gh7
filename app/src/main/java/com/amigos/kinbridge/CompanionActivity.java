@@ -4,23 +4,32 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.amigos.kinbridge.scoring.ScoringEngine;
 import com.amigos.kinbridge.scoring.ScoringEngine.Escalation;
@@ -73,6 +82,13 @@ public class CompanionActivity extends AppCompatActivity {
     private ScrollView transcriptScroll;
     private EditText chatInput;
 
+    // Voice layer: built-in STT + TTS (Web Speech equivalent per failure ladder)
+    private TextToSpeech tts;
+    private SpeechRecognizer recognizer;
+    private ImageView micButton;
+    private boolean ttsReady;
+    private int utteranceCounter;
+
     // Demo Mode state
     private int demoTaps;
     private long firstDemoTapAt;
@@ -121,6 +137,8 @@ public class CompanionActivity extends AppCompatActivity {
         reminderEngine = new ReminderEngine(this, this::companionSay);
         reminderEngine.start();
         loadFriends();
+        setupVoice();
+        SideMenu.bind(this);
 
         repository.loadProfile(this, new ElderRepository.ProfileCallback() {
             @Override
@@ -335,17 +353,31 @@ public class CompanionActivity extends AppCompatActivity {
     }
 
     private void evaluate(String reply, ElderFact fact) {
-        Verdict verdict;
-        double confidence;
         if (forcedVerdict != null) {
             // Demo Mode forced verdict — still runs the real scoring pipeline.
-            verdict = forcedVerdict;
-            confidence = forcedConfidence;
+            Verdict verdict = forcedVerdict;
+            double confidence = forcedConfidence;
             forcedVerdict = null;
-        } else {
-            verdict = judge(reply, fact);
-            confidence = confidenceOf(verdict);
+            applyVerdict(reply, fact, verdict, confidence);
+            return;
         }
+        // Gemini judge (prompts.md §3, temp 0) with the local judge as the
+        // offline fallback per the failure ladder.
+        GeminiClient.judge(reply, fact, new GeminiClient.JudgeCallback() {
+            @Override
+            public void onResult(Verdict verdict, double confidence) {
+                applyVerdict(reply, fact, verdict, confidence);
+            }
+
+            @Override
+            public void onError() {
+                Verdict fallback = judge(reply, fact);
+                applyVerdict(reply, fact, fallback, confidenceOf(fallback));
+            }
+        });
+    }
+
+    private void applyVerdict(String reply, ElderFact fact, Verdict verdict, double confidence) {
 
         // V2.3 + MASTER_CHECKLIST §5: a cocok_kata (2-choice) exact earns a
         // discounted 0.75 credit — guessing right is weak signal.
@@ -708,9 +740,116 @@ public class CompanionActivity extends AppCompatActivity {
 
     // ---- UI helpers ----
 
+    // ---- Voice layer: Kenang speaks (TTS), the elder talks (STT) ----
+
+    private void setupVoice() {
+        tts = new TextToSpeech(this, status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                java.util.Locale locale = indonesian()
+                        ? new java.util.Locale("in", "ID") : java.util.Locale.US;
+                tts.setLanguage(locale);
+                tts.setSpeechRate(0.9f); // unhurried, elder-friendly
+                ttsReady = true;
+            }
+        });
+
+        micButton = findViewById(R.id.micButton);
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            micButton.setVisibility(View.GONE);
+            return;
+        }
+        micButton.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
+                    == PackageManager.PERMISSION_GRANTED) {
+                startListening();
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.RECORD_AUDIO}, 77);
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 77 && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startListening();
+        } else if (requestCode == 77) {
+            Toast.makeText(this, R.string.mic_permission, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startListening() {
+        if (recognizer != null) {
+            recognizer.stopListening();
+            recognizer.destroy();
+        }
+        recognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        recognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onResults(Bundle results) {
+                resetMicState();
+                java.util.ArrayList<String> matches =
+                        results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (matches != null && !matches.isEmpty() && !matches.get(0).trim().isEmpty()) {
+                    onElderTurn(matches.get(0));
+                }
+            }
+
+            @Override
+            public void onError(int error) {
+                resetMicState();
+            }
+
+            @Override public void onReadyForSpeech(Bundle params) { }
+            @Override public void onBeginningOfSpeech() { }
+            @Override public void onRmsChanged(float rmsdB) { }
+            @Override public void onBufferReceived(byte[] buffer) { }
+            @Override public void onEndOfSpeech() { }
+            @Override public void onPartialResults(Bundle partialResults) { }
+            @Override public void onEvent(int eventType, Bundle params) { }
+        });
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, indonesian() ? "id-ID" : "en-US");
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        recognizer.startListening(intent);
+        micButton.setBackgroundResource(R.drawable.bg_card_selected);
+    }
+
+    private void resetMicState() {
+        micButton.setBackgroundResource(R.drawable.bg_input);
+        if (recognizer != null) {
+            recognizer.destroy();
+            recognizer = null;
+        }
+    }
+
+    private void speakAloud(String text) {
+        if (ttsReady && tts != null) {
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "kenang_" + (utteranceCounter++));
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+        if (recognizer != null) {
+            recognizer.destroy();
+        }
+        super.onDestroy();
+    }
+
     private void companionSay(String text) {
         companionText.setText(text);
         addTranscript(false, text);
+        speakAloud(text);
     }
 
     private void addTranscript(boolean elder, String text) {

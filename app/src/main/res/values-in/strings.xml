@@ -106,6 +106,15 @@
     <string name="ignore">Abaikan</string>
     <string name="completed_label">Selesai ✓</string>
     <string name="games_flavor">Ibu suka main tebak-tebakan minggu ini</string>
+    <string name="mic_desc">Bicara</string>
+    <string name="mic_permission">Izin mikrofon diperlukan untuk suara</string>
+    <string name="menu_companion">Kenang — teman ngobrol</string>
+    <string name="menu_dashboard">Dasbor</string>
+    <string name="menu_care">Panel perawat</string>
+    <string name="menu_diary">Buku Harian</string>
+    <string name="menu_wizard">Atur profil</string>
+    <string name="menu_role">Pilih peran</string>
+    <string name="menu_login">Masuk</string>
     <string name="tab_trend">Tren</string>
     <string name="tab_diary">Buku Harian</string>
     <string name="diary_empty">Kenang sedang menemani Ibu — cerita pertama akan muncul di sini.</string>

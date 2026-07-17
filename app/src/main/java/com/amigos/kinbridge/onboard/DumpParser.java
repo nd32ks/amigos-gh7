@@ -18,7 +18,7 @@ public final class DumpParser {
         public final String category;
         public final String canonical;
 
-        ExtractedFact(int tier, String category, String canonical) {
+        public ExtractedFact(int tier, String category, String canonical) {
             this.tier = tier;
             this.category = category;
             this.canonical = canonical;

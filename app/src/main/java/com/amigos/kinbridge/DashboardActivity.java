@@ -105,6 +105,13 @@ public class DashboardActivity extends AppCompatActivity {
 
         findViewById(R.id.tabTrend).setOnClickListener(v -> selectTab(true));
         findViewById(R.id.tabDiary).setOnClickListener(v -> selectTab(false));
+
+        SideMenu.bind(this);
+
+        if (getIntent().getBooleanExtra(SideMenu.EXTRA_OPEN_DIARY, false)) {
+            getIntent().removeExtra(SideMenu.EXTRA_OPEN_DIARY);
+            selectTab(false);
+        }
     }
 
     @Override

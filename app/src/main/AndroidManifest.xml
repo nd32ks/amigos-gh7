@@ -53,4 +53,6 @@
 
     <!-- Needed for Firebase auth once the backend is wired up -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Voice input for the elder companion -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>

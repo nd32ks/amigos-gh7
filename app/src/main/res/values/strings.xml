@@ -106,6 +106,15 @@
     <string name="ignore">Ignore</string>
     <string name="completed_label">Done ✓</string>
     <string name="games_flavor">Ibu enjoyed a few guessing games this week</string>
+    <string name="mic_desc">Speak</string>
+    <string name="mic_permission">Microphone permission is needed for voice input</string>
+    <string name="menu_companion">Kenang — companion</string>
+    <string name="menu_dashboard">Dashboard</string>
+    <string name="menu_care">Care panel</string>
+    <string name="menu_diary">Diary</string>
+    <string name="menu_wizard">Profile setup</string>
+    <string name="menu_role">Role select</string>
+    <string name="menu_login">Sign in</string>
     <string name="tab_trend">Trend</string>
     <string name="tab_diary">Diary</string>
     <string name="diary_empty">Kenang is with Ibu — her first story will appear here.</string>

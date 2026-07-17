@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Microphone: line-art, ink strokes (DESIGN.md icon language) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M12,3 a3,3 0 0 1 3,3 v5 a3,3 0 0 1 -6,0 v-5 a3,3 0 0 1 3,-3 z"
+        android:strokeColor="@color/ink_black"
+        android:strokeWidth="1.6"
+        android:fillColor="@android:color/transparent" />
+    <path
+        android:pathData="M6,11 c0,3.3 2.7,6 6,6 c3.3,0 6,-2.7 6,-6"
+        android:strokeColor="@color/ink_black"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+    <path
+        android:pathData="M12,17 L12,21"
+        android:strokeColor="@color/ink_black"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent" />
+</vector>

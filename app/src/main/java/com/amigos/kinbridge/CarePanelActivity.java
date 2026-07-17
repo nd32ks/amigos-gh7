@@ -39,6 +39,8 @@ public class CarePanelActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_care_panel);
 
+        SideMenu.bind(this);
+
         findViewById(R.id.careLogout).setOnClickListener(v -> {
             userRepository.signOut();
             FontScale.reset(this);

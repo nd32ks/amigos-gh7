@@ -11,4 +11,21 @@
         <item name="android:windowBackground">@color/pure_white</item>
         <item name="android:fontFamily">@font/inter_regular</item>
     </style>
+
+    <!-- Right-edge navigation drawer rows + window animation -->
+    <style name="MenuRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:drawablePadding">14dp</item>
+        <item name="android:textColor">@color/ink_black</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="SideMenuAnimations">
+        <item name="android:windowEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_right</item>
+    </style>
 </resources>

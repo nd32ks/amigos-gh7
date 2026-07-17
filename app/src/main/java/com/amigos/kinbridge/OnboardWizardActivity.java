@@ -47,9 +47,23 @@ public class OnboardWizardActivity extends AppCompatActivity {
         if (text.isEmpty()) {
             return;
         }
-        extracted = DumpParser.parse(text);
-        populateTiers();
-        crossfade(findViewById(R.id.stepDump), findViewById(R.id.stepReview));
+        // Gemini structured extraction (V2 §5); DumpParser is the offline
+        // fallback, matching the doc's cached-parse escape hatch (§7).
+        GeminiClient.extractFacts(text, new GeminiClient.ExtractCallback() {
+            @Override
+            public void onResult(java.util.List<ExtractedFact> facts) {
+                extracted = facts.isEmpty() ? DumpParser.parse(text) : facts;
+                populateTiers();
+                crossfade(findViewById(R.id.stepDump), findViewById(R.id.stepReview));
+            }
+
+            @Override
+            public void onError() {
+                extracted = DumpParser.parse(text);
+                populateTiers();
+                crossfade(findViewById(R.id.stepDump), findViewById(R.id.stepReview));
+            }
+        });
     }
 
     private void populateTiers() {
