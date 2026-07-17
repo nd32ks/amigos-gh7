@@ -140,4 +140,12 @@
     <string name="text_size">Text size</string>
     <string name="reset_settings">Reset settings</string>
     <string name="settings_reset_done">Settings have been reset</string>
+    <string name="guided_q_hypertension">Do you have high blood pressure?</string>
+    <string name="guided_q_diabetes">Do you have diabetes?</string>
+    <string name="guided_q_knee">Do your knees hurt when you walk far?</string>
+    <string name="guided_q_seafood">Are you allergic to seafood?</string>
+    <string name="guided_thanks">Noted, Ibu. Thank you.</string>
+    <string name="guided_done">All done — thank you so much, Ibu.</string>
+    <string name="feature_questions">Health questions</string>
+    <string name="feature_questions_sub">A few gentle questions</string>
 </resources>

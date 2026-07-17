@@ -37,4 +37,10 @@ public class DailyLogStoreTest {
         assertEquals("[21:40] Kenang: Selamat malam, Ibu.",
                 DailyLogStore.formatLine("21:40", "Kenang", "Selamat malam, Ibu."));
     }
+
+    @Test
+    public void formatDiarySection_stampsDateAndTime() {
+        assertEquals("\n--- Buku harian (2026-07-17 21:40) ---\nIbu menonton Game of Thrones.",
+                DailyLogStore.formatDiarySection("2026-07-17 21:40", "Ibu menonton Game of Thrones."));
+    }
 }

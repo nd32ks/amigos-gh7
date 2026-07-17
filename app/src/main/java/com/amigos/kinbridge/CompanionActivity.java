@@ -846,11 +846,16 @@ public class CompanionActivity extends AppCompatActivity {
         recognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onResults(Bundle results) {
+                boolean diary = diaryMode;
                 resetMicState();
                 java.util.ArrayList<String> matches =
                         results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if (matches != null && !matches.isEmpty() && !matches.get(0).trim().isEmpty()) {
-                    onElderTurn(matches.get(0));
+                    if (diary) {
+                        onDiaryDictation(matches.get(0));
+                    } else {
+                        onElderTurn(matches.get(0));
+                    }
                 }
             }
 
@@ -874,15 +879,55 @@ public class CompanionActivity extends AppCompatActivity {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, indonesian() ? "id-ID" : "en-US");
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
         recognizer.startListening(intent);
-        micButton.setBackgroundResource(R.drawable.bg_card_selected);
+        (diaryMode ? diaryButton : micButton).setBackgroundResource(R.drawable.bg_card_selected);
     }
 
     private void resetMicState() {
         micButton.setBackgroundResource(R.drawable.bg_input);
+        if (diaryButton != null) {
+            diaryButton.setBackgroundResource(R.drawable.bg_input);
+        }
+        diaryMode = false;
         if (recognizer != null) {
             recognizer.destroy();
             recognizer = null;
         }
+    }
+
+    /**
+     * Diary dictation: transcribed speech → Gemini key-point summary → stored
+     * as today's diary entry (date + time stamped) in the local per-day log
+     * and the Firestore diary. If Gemini is unreachable the verbatim transcript
+     * is stored instead — a diary entry is never lost.
+     */
+    private void onDiaryDictation(String text) {
+        addTranscript(true, text);
+        companionText.setText(R.string.companion_thinking);
+        GeminiClient.summarizeDiaryEntry(text, indonesian(), new GeminiClient.SummaryCallback() {
+            @Override
+            public void onSummary(String summary) {
+                saveDiaryEntry(summary);
+                companionSay(getString(R.string.diary_saved));
+            }
+
+            @Override
+            public void onError() {
+                saveDiaryEntry(text);
+                companionSay(getString(R.string.diary_saved));
+            }
+        });
+    }
+
+    private void saveDiaryEntry(String content) {
+        dailyLog.appendDiaryEntry(this, content);
+        Map<String, Object> entry = new HashMap<>();
+        entry.put("date", new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(new java.util.Date()));
+        entry.put("summaryId", content);
+        entry.put("summaryEn", content);
+        entry.put("moodTag", "dicatat");
+        entry.put("source", "dictation");
+        repository.saveDiaryEntry(entry);
     }
 
     private void speakAloud(String text) {
@@ -916,7 +961,7 @@ public class CompanionActivity extends AppCompatActivity {
         }
         dailyLog.appendTurn(this, elder, text);
         TextView row = new TextView(this);
-        row.setTextSize(15);
+        row.setTextSize(17);
         row.setText(elder ? "Ibu: " + text : "Kenang: " + text);
         row.setTextColor(getColor(elder ? R.color.slate_gray : R.color.ink_black));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(

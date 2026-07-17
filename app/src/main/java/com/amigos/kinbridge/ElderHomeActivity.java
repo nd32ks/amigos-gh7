@@ -43,6 +43,8 @@ public class ElderHomeActivity extends AppCompatActivity {
                 startActivity(new Intent(this, CompanionActivity.class)));
         findViewById(R.id.featureDiary).setOnClickListener(v ->
                 startActivity(new Intent(this, ElderDiaryActivity.class)));
+        findViewById(R.id.featureQuestions).setOnClickListener(v ->
+                startActivity(new Intent(this, GuidedQuestionActivity.class)));
         findViewById(R.id.accountButton).setOnClickListener(v -> showAccountSheet());
 
         loadGreeting();

@@ -140,4 +140,12 @@
     <string name="text_size">Ukuran teks</string>
     <string name="reset_settings">Atur ulang pengaturan</string>
     <string name="settings_reset_done">Pengaturan telah direset</string>
+    <string name="guided_q_hypertension">Ibu punya darah tinggi?</string>
+    <string name="guided_q_diabetes">Ibu punya diabetes?</string>
+    <string name="guided_q_knee">Lutut Ibu suka sakit kalau jalan jauh?</string>
+    <string name="guided_q_seafood">Ibu alergi seafood?</string>
+    <string name="guided_thanks">Baik Bu, saya catat. Terima kasih.</string>
+    <string name="guided_done">Selesai — terima kasih banyak, Bu.</string>
+    <string name="feature_questions">Pertanyaan kesehatan</string>
+    <string name="feature_questions_sub">Beberapa pertanyaan ringan</string>
 </resources>
