@@ -62,6 +62,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         findViewById(R.id.dashboardLogout).setOnClickListener(v -> {
             userRepository.signOut();
+            FontScale.reset(this);
             Intent intent = new Intent(this, OnboardingActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

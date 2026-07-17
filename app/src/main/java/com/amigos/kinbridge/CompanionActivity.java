@@ -84,18 +84,36 @@ public class CompanionActivity extends AppCompatActivity {
 
         companionText.setOnClickListener(v -> onDemoTap());
 
+        // Firestore may be unreachable or rules may deny the elders read — the
+        // conversation must work regardless, so fall back to the local seed.
+        chatInput.postDelayed(() -> {
+            if (profile == null) {
+                useProfile(repository.localSeedProfile());
+            }
+        }, 4000);
         repository.ensureSeeded(() -> repository.loadProfile(new ElderRepository.ProfileCallback() {
             @Override
             public void onLoaded(ElderProfile loaded) {
-                profile = loaded;
-                companionSay(getString(R.string.companion_greeting));
+                useProfile(loaded);
             }
 
             @Override
             public void onError(String message) {
-                companionSay(getString(R.string.companion_greeting));
+                useProfile(repository.localSeedProfile());
             }
         }));
+    }
+
+    private boolean greeted;
+
+    private void useProfile(ElderProfile loaded) {
+        if (profile == null) {
+            profile = loaded;
+        }
+        if (!greeted) {
+            greeted = true;
+            companionSay(getString(R.string.companion_greeting));
+        }
     }
 
     // ---- Conversation loop (workflow spec §2 state machine) ----

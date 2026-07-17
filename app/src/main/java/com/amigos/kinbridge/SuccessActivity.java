@@ -42,6 +42,7 @@ public class SuccessActivity extends AppCompatActivity {
         Button logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(v -> {
             userRepository.signOut();
+            FontScale.reset(this);
             Intent intent = new Intent(this, OnboardingActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

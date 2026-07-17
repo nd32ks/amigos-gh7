@@ -68,6 +68,15 @@ public class ElderRepository {
         onDone.onDone();
     }
 
+    /** Offline / rules-denied fallback profile built from the same seed data. */
+    public ElderProfile localSeedProfile() {
+        List<ElderFact> facts = new ArrayList<>();
+        for (Map<String, Object> m : seedFactMaps()) {
+            facts.add(ElderFact.fromMap(m));
+        }
+        return new ElderProfile("Ibu Sri Rahayu Wijaya", "Gading Serpong", 60.0, facts);
+    }
+
     public void loadProfile(ProfileCallback callback) {
         db.collection(ELDERS).document(ELDER_ID).get().addOnSuccessListener(doc -> {
             if (!doc.exists()) {

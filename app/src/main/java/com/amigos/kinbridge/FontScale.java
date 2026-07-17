@@ -34,4 +34,10 @@ final class FontScale {
         config.fontScale = scaleForStep(prefs.getInt(KEY_FONT_STEP, 0));
         return base.createConfigurationContext(config);
     }
+
+    /** Restores the default text size (called on logout). */
+    static void reset(Context context) {
+        context.getSharedPreferences(OnboardingActivity.PREFS, Context.MODE_PRIVATE)
+                .edit().putInt(KEY_FONT_STEP, 0).apply();
+    }
 }
