@@ -1,10 +1,13 @@
 package com.amigos.kinbridge;
 
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +16,13 @@ import java.util.Map;
  * Repository layer for auth + user profiles.
  * Firebase Auth signs the user in immediately after account creation; the
  * matching users/{uid} Firestore document is created on first login if absent.
+ * Profile persistence is deliberately non-blocking: auth never fails just
+ * because Firestore is unreachable — writes are queued and sync when the
+ * client comes online.
  */
 public class UserRepository {
+
+    private static final String TAG = "UserRepository";
 
     public interface Callback {
         void onSuccess(FirebaseUser user);
@@ -27,13 +35,19 @@ public class UserRepository {
 
     public void createAccount(String name, String email, String password, Callback callback) {
         auth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener(result -> ensureUserDocument(result.getUser(), name, callback))
+                .addOnSuccessListener(result -> {
+                    ensureUserDocument(result.getUser(), name);
+                    callback.onSuccess(result.getUser());
+                })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
     public void signIn(String email, String password, Callback callback) {
         auth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener(result -> ensureUserDocument(result.getUser(), null, callback))
+                .addOnSuccessListener(result -> {
+                    ensureUserDocument(result.getUser(), null);
+                    callback.onSuccess(result.getUser());
+                })
                 .addOnFailureListener(e -> callback.onError(e.getMessage()));
     }
 
@@ -41,24 +55,35 @@ public class UserRepository {
         auth.signOut();
     }
 
-    /** Creates the users/{uid} document the first time we see this account. */
-    private void ensureUserDocument(FirebaseUser user, String name, Callback callback) {
+    /**
+     * Best-effort creation of users/{uid}. If the read fails (client offline,
+     * database not provisioned yet), a merge write is queued instead — Firestore
+     * persists it locally and syncs once the backend is reachable.
+     */
+    private void ensureUserDocument(FirebaseUser user, String name) {
         DocumentReference ref = db.collection("users").document(user.getUid());
         ref.get().addOnSuccessListener(snapshot -> {
-            if (snapshot.exists()) {
-                callback.onSuccess(user);
-                return;
+            if (!snapshot.exists()) {
+                ref.set(userData(user, name, true))
+                        .addOnFailureListener(e -> Log.w(TAG, "user doc write failed", e));
             }
-            Map<String, Object> data = new HashMap<>();
-            data.put("uid", user.getUid());
-            data.put("email", user.getEmail());
-            if (name != null && !name.isEmpty()) {
-                data.put("name", name);
-            }
+        }).addOnFailureListener(e -> {
+            Log.w(TAG, "user doc read failed (offline?), queueing merge write", e);
+            ref.set(userData(user, name, name != null), SetOptions.merge())
+                    .addOnFailureListener(e2 -> Log.w(TAG, "queued user doc write failed", e2));
+        });
+    }
+
+    private Map<String, Object> userData(FirebaseUser user, String name, boolean withCreatedAt) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("uid", user.getUid());
+        data.put("email", user.getEmail());
+        if (name != null && !name.isEmpty()) {
+            data.put("name", name);
+        }
+        if (withCreatedAt) {
             data.put("createdAt", FieldValue.serverTimestamp());
-            ref.set(data)
-                    .addOnSuccessListener(unused -> callback.onSuccess(user))
-                    .addOnFailureListener(e -> callback.onError(e.getMessage()));
-        }).addOnFailureListener(e -> callback.onError(e.getMessage()));
+        }
+        return data;
     }
 }
