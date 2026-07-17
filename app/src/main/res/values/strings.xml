@@ -27,4 +27,6 @@
     <string name="have_account">Already have an account? Sign in</string>
     <string name="creating_account">Creating account…</string>
     <string name="account_created">Account created</string>
+    <string name="lang_id_desc">Switch to Indonesian</string>
+    <string name="lang_en_desc">Switch to English</string>
 </resources>

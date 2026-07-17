@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KinBridge</string>
+    <string name="welcome_back">Selamat datang kembali</string>
+    <string name="login_subtitle">Masuk untuk melanjutkan ke KinBridge</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">you@example.com</string>
+    <string name="password_label">Kata sandi</string>
+    <string name="password_hint">Minimal 8 karakter</string>
+    <string name="sign_in">Masuk</string>
+    <string name="forgot_password">Lupa kata sandi?</string>
+    <string name="error_email">Masukkan alamat email yang valid</string>
+    <string name="error_password">Kata sandi minimal 8 karakter</string>
+    <string name="reset_unavailable">Atur ulang kata sandi belum tersedia</string>
+    <string name="login_successful">Berhasil masuk</string>
+    <string name="signed_in_as">Masuk sebagai %1$s</string>
+    <string name="log_out">Keluar</string>
+    <string name="signing_in">Sedang masuk…</string>
+    <string name="create_account">Buat akun</string>
+    <string name="create_account_subtitle">Buat akun keluarga agar tetap dekat</string>
+    <string name="full_name_label">Nama lengkap</string>
+    <string name="full_name_hint">Dewi Anggraini</string>
+    <string name="confirm_password_label">Konfirmasi kata sandi</string>
+    <string name="confirm_password_hint">Ulangi kata sandi Anda</string>
+    <string name="error_name">Masukkan nama Anda</string>
+    <string name="error_confirm">Kata sandi tidak cocok</string>
+    <string name="have_account">Sudah punya akun? Masuk</string>
+    <string name="creating_account">Membuat akun…</string>
+    <string name="account_created">Akun berhasil dibuat</string>
+    <string name="lang_id_desc">Ganti ke Bahasa Indonesia</string>
+    <string name="lang_en_desc">Ganti ke Bahasa Inggris</string>
+</resources>
