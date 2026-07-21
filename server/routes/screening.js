@@ -2,9 +2,8 @@ import { Router } from 'express';
 import { config } from '../config.js';
 import { loadFacts } from '../screening/facts.js';
 import { readResultsByDate } from '../screening/store.js';
-import {
-  buildTrend, dailyIndex, gamePlan, tier1Misses,
-} from '../screening/score.js';
+import { buildTrend, dailyIndex, tier1Misses } from '../screening/score.js';
+import { gamePlanForIndex } from '../screening/plan.js';
 import { dateStamp } from '../dailyLog.js';
 
 export const screeningRouter = Router();
@@ -20,7 +19,9 @@ screeningRouter.get('/api/screening', async (req, res) => {
     const todaysResults = resultsByDate[today] ?? [];
     const todayIndex = dailyIndex(todaysResults);
     const trend = buildTrend(resultsByDate);
-    const latestEwma = trend.length > 0 ? trend[trend.length - 1].ewma : null;
+    const latestTrend = trend.at(-1) ?? null;
+    // The smoothed value makes the game plan less jumpy than a single day.
+    const gamePlan = gamePlanForIndex(latestTrend?.ewma ?? todayIndex);
 
     res.json({
       success: true,
@@ -33,7 +34,7 @@ screeningRouter.get('/api/screening', async (req, res) => {
           tier1Misses: tier1Misses(todaysResults),
         },
         trend,
-        gamePlan: gamePlan(todayIndex ?? latestEwma),
+        gamePlan,
       },
       error: null,
     });

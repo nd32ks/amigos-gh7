@@ -32,7 +32,7 @@
       <a href="#/chat" data-nav="chat" class="nav-link">Chat</a>
       <a href="#/journal" data-nav="journal" class="nav-link">Journal</a>
       <a href="#/wellness" data-nav="wellness" class="nav-link">Wellness</a>
-      <a href="#/games" data-nav="games" class="nav-link">Play</a>
+      <a href="#/play" data-nav="play" class="nav-link">Play</a>
     </div>
     <a href="#/chat" class="pill-cta nav-cta">Talk to Kin <span aria-hidden="true">→</span></a>
   </nav>
@@ -85,24 +85,13 @@
         </article>
 
         <article class="content-card">
-          <p class="card-label">Family</p>
-          <h2 class="card-title">Video Call</h2>
-          <p class="card-body">See a familiar face. One tap and Kinbridge connects
-          you with the people you love.</p>
-          <div class="card-footer">
-            <a href="#/call" class="pill-cta">Call <span aria-hidden="true">→</span></a>
-            <a href="#/call" class="expand-btn" aria-label="Start video call">+</a>
-          </div>
-        </article>
-
-        <article class="content-card">
           <p class="card-label">Recreation</p>
-          <h2 class="card-title">🌱 Brain Bloom</h2>
-          <p class="card-body">Playful crossword puzzles that quietly tune themselves —
-          harder or gentler — to how your memory check-ins have been going.</p>
+          <h2 class="card-title">Mind Garden</h2>
+          <p class="card-body">A cheerful crossword nook with gentle hints and a playful
+          rhythm shaped by Wellness signals.</p>
           <div class="card-footer">
-            <a href="#/games" class="pill-cta">Play <span aria-hidden="true">→</span></a>
-            <a href="#/games" class="expand-btn" aria-label="Open Brain Bloom games">+</a>
+            <a href="#/play" class="pill-cta">Play <span aria-hidden="true">→</span></a>
+            <a href="#/play" class="expand-btn" aria-label="Open Mind Garden">+</a>
           </div>
         </article>
       </div>
@@ -183,136 +172,76 @@
       </div>
     </section>
 
-    <!-- ============ GAMES (Brain Bloom) ============ -->
-    <section id="view-games" class="view" hidden>
-      <header class="wellness-header">
-        <h1 class="serif-heading">🌱 Brain Bloom</h1>
-        <p class="wellness-sub">Fun crossword puzzles that quietly tune themselves to how
-        your memory check-ins have been going. Play at your own pace — hints are always here.</p>
+    <!-- ============ PLAY / MIND GARDEN ============ -->
+    <section id="view-play" class="view" hidden aria-labelledby="play-heading">
+      <header class="play-header">
+        <p class="play-kicker">Recreation nook</p>
+        <h1 id="play-heading" class="serif-heading">Mind Garden</h1>
+        <p class="play-sub">A bright little place for clues, curious words, and moments of play.</p>
       </header>
 
-      <div id="games-banner" class="games-banner" role="status" hidden></div>
-
-      <div class="stat-row">
-        <div class="stat-tile">
-          <p class="stat-label">Today's suggested goal</p>
-          <p class="stat-value" id="stat-goal">–</p>
+      <section class="play-plan" aria-labelledby="play-plan-title">
+        <div>
+          <p class="play-plan-label">Your playful plan</p>
+          <h2 id="play-plan-title" class="play-plan-title">Choosing a gentle rhythm…</h2>
+          <p id="play-plan-copy" class="play-plan-copy">We’re looking at the Wellness signal to suggest a crossword pace.</p>
         </div>
-        <div class="stat-tile">
-          <p class="stat-label">Completed today</p>
-          <p class="stat-value" id="stat-completed">–</p>
+        <div class="play-plan-side">
+          <p id="play-plan-count" class="play-plan-count">–</p>
+          <p id="play-plan-progress" class="play-plan-progress">Short games, at your own pace.</p>
+          <button id="play-plan-action" type="button" class="pill-cta">Play the suggestion <span aria-hidden="true">→</span></button>
         </div>
-      </div>
-
-      <section id="difficulty-section" class="wellness-card">
-        <h2 class="wellness-card-title">Choose a puzzle</h2>
-        <div class="difficulty-grid">
-          <button type="button" class="difficulty-card" data-difficulty="easy">
-            <span class="difficulty-badge" hidden>Kin recommends</span>
-            <span class="difficulty-name">Easy</span>
-            <span class="difficulty-desc">Small grid, short everyday words. A relaxed warm-up.</span>
-          </button>
-          <button type="button" class="difficulty-card" data-difficulty="medium">
-            <span class="difficulty-badge" hidden>Kin recommends</span>
-            <span class="difficulty-name">Medium</span>
-            <span class="difficulty-desc">A bit bigger, a few more words. Steady practice.</span>
-          </button>
-          <button type="button" class="difficulty-card" data-difficulty="hard">
-            <span class="difficulty-badge" hidden>Kin recommends</span>
-            <span class="difficulty-name">Hard</span>
-            <span class="difficulty-desc">Bigger grid, longer words. A good mental stretch.</span>
-          </button>
-        </div>
-        <button type="button" id="surprise-me" class="pill-cta surprise-btn">
-          🎲 Surprise me — Kin picks
-        </button>
+        <p class="play-plan-note">This is a play guide based on Wellness patterns, not a test or diagnosis. You can choose any level.</p>
       </section>
 
-      <section id="puzzle-board" class="wellness-card puzzle-board" hidden>
-        <div class="puzzle-board-header">
+      <section class="puzzle-section" aria-labelledby="puzzle-picker-heading">
+        <div class="play-section-heading">
           <div>
-            <h2 id="puzzle-title" class="wellness-card-title"></h2>
-            <span id="puzzle-difficulty-chip" class="chip"></span>
+            <p class="play-kicker">Choose your path</p>
+            <h2 id="puzzle-picker-heading" class="play-section-title">Pick a crossword</h2>
           </div>
-          <button type="button" id="puzzle-back" class="pill-cta">← All puzzles</button>
+          <p class="play-section-note">Tap a level below, then tap a clue or square to begin.</p>
         </div>
+        <div id="puzzle-picker" class="puzzle-picker" role="group" aria-label="Crossword difficulty"></div>
+      </section>
 
-        <div class="crossword-wrap">
-          <div id="crossword-grid" class="crossword-grid" role="grid" aria-label="Crossword puzzle grid"></div>
-          <div class="clue-panel">
-            <div class="clue-column">
-              <h3 class="clue-heading">Across</h3>
-              <ul id="clues-across" class="clue-list"></ul>
+      <section class="crossword-workspace" aria-labelledby="crossword-title">
+        <div class="crossword-card">
+          <div class="crossword-card-heading">
+            <div>
+              <p id="crossword-level" class="play-kicker">Gentle crossword</p>
+              <h2 id="crossword-title" class="play-section-title">A sunny warm-up</h2>
             </div>
-            <div class="clue-column">
-              <h3 class="clue-heading">Down</h3>
-              <ul id="clues-down" class="clue-list"></ul>
-            </div>
+            <p id="crossword-word-count" class="crossword-word-count"></p>
           </div>
+          <p class="crossword-help">Use the arrow keys to move around the board. Tap the same square again to switch direction.</p>
+          <div id="crossword-board" class="crossword-board" aria-label="Crossword board"></div>
+          <p id="crossword-status" class="crossword-status" role="status" aria-live="polite">Choose a clue to start.</p>
         </div>
 
-        <div class="puzzle-controls">
-          <button type="button" id="hint-letter" class="pill-cta">💡 Hint: a letter</button>
-          <button type="button" id="hint-word" class="pill-cta">🔍 Hint: whole word</button>
-          <button type="button" id="check-answers" class="pill-cta">✓ Check my answers</button>
-          <button type="button" id="new-puzzle" class="pill-cta">🔀 New puzzle</button>
-        </div>
-
-        <p id="puzzle-status" class="wellness-empty" hidden></p>
-        <div id="puzzle-complete" class="puzzle-complete" hidden></div>
+        <aside class="clue-card" aria-labelledby="clue-heading">
+          <div class="clue-card-heading">
+            <div>
+              <p class="play-kicker">Take your time</p>
+              <h2 id="clue-heading" class="play-section-title">Clues</h2>
+            </div>
+            <p id="hint-count" class="hint-count">Hints used: 0</p>
+          </div>
+          <div id="crossword-clues" class="crossword-clues"></div>
+          <div class="game-controls">
+            <button id="game-hint" type="button" class="pill-cta">Show a letter <span aria-hidden="true">✦</span></button>
+            <button id="game-restart" type="button" class="quiet-button">Start this puzzle again</button>
+          </div>
+        </aside>
       </section>
     </section>
-
-    <!-- ============ VIDEO CALL (demo) ============ -->
-    <section id="view-call" class="view" hidden>
-      <div class="call-screen">
-        <video id="call-video" class="call-video" src="20260717_181036.mp4"
-          playsinline preload="auto" hidden></video>
-
-        <div id="call-ringing" class="call-ringing">
-          <div class="call-avatar" aria-hidden="true"><span>B</span></div>
-          <p class="call-name">Budi</p>
-          <p class="call-state">Calling…</p>
-        </div>
-
-        <div id="call-topbar" class="call-topbar" hidden>
-          <span class="call-peer">Budi · Grandson</span>
-          <span class="call-timer">
-            <span class="call-live-dot" aria-hidden="true"></span>
-            <span id="call-timer-value">00:00</span>
-          </span>
-        </div>
-
-        <div id="call-selfview" class="call-selfview" hidden>
-          <span class="call-selfview-label">You</span>
-        </div>
-
-        <div class="call-controls">
-          <button type="button" id="call-mute" class="call-btn" aria-pressed="false"
-            aria-label="Mute microphone">
-            <svg id="call-mic-on" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
-            </svg>
-            <svg id="call-mic-off" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden>
-              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/>
-              <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <button type="button" id="call-end" class="call-btn call-btn-end" aria-label="End call">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </section>
+  </main>
 
   <footer class="site-footer">
     <div class="divider-stripe" aria-hidden="true"><span></span><span></span><span></span></div>
     <p class="footer-note">Kinbridge — made with care for the people who raised us.</p>
   </footer>
 
-  <script src="games.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
