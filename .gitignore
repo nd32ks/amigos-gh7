@@ -7,7 +7,31 @@ logs/
 # Dependencies
 node_modules/
 
+# Vercel local project link
+.vercel/
+.vercel
+
 # OS / editor
 .DS_Store
 .idea/
-.vercel
+
+# Leftover directories from other branches — not part of the main app
+apk/
+webapp/
+
+# Android / Kotlin build outputs and local machine config (in case apk/ is un-ignored)
+.gradle/
+apk/**/build/
+apk/.idea/
+**/local.properties
+apk/web/dist/
+apk/web/node_modules/
+
+# Next.js build output
+.next/
+
+# Build outputs
+dist/
+
+# Large media files
+*.mp4
