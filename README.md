@@ -18,7 +18,10 @@ screen as an app (PWA manifest included).
    recall against ground-truth facts (`data/elder-facts.json`), and results roll
    into a tier-weighted Recall Index shown on the Wellness dashboard with a
    day-by-day trend. An early signal — never a diagnosis.
-3. _Reserved_ — third feature slot, not yet specified.
+3. **Mind Garden** — a friendly crossword nook with Gentle, Steady, and
+   Challenge levels. Its suggested weekly rhythm uses the Wellness recall
+   signal as a play guide, never as a diagnosis; every level remains available
+   and each crossword offers letter hints.
 
 ## Setup
 

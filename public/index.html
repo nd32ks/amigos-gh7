@@ -32,6 +32,7 @@
       <a href="#/chat" data-nav="chat" class="nav-link">Chat</a>
       <a href="#/journal" data-nav="journal" class="nav-link">Journal</a>
       <a href="#/wellness" data-nav="wellness" class="nav-link">Wellness</a>
+      <a href="#/play" data-nav="play" class="nav-link">Play</a>
     </div>
     <a href="#/chat" class="pill-cta nav-cta">Talk to Kin <span aria-hidden="true">→</span></a>
   </nav>
@@ -83,14 +84,14 @@
           </div>
         </article>
 
-        <article class="content-card card-soon">
-          <p class="card-label card-label-muted">Coming soon</p>
-          <h2 class="card-title">Feature Three</h2>
-          <p class="card-body">The next Kinbridge feature will appear here. This space is
-          reserved for it.</p>
+        <article class="content-card">
+          <p class="card-label">Recreation</p>
+          <h2 class="card-title">Mind Garden</h2>
+          <p class="card-body">A cheerful crossword nook with gentle hints and a playful
+          rhythm shaped by Wellness signals.</p>
           <div class="card-footer">
-            <span class="pill-cta pill-disabled" aria-disabled="true">Soon</span>
-            <span class="expand-btn expand-disabled" aria-hidden="true">+</span>
+            <a href="#/play" class="pill-cta">Play <span aria-hidden="true">→</span></a>
+            <a href="#/play" class="expand-btn" aria-label="Open Mind Garden">+</a>
           </div>
         </article>
       </div>
@@ -169,6 +170,70 @@
         <h2 class="wellness-card-title">What Kin gently checks</h2>
         <ul id="facts-list" class="facts-list"></ul>
       </div>
+    </section>
+
+    <!-- ============ PLAY / MIND GARDEN ============ -->
+    <section id="view-play" class="view" hidden aria-labelledby="play-heading">
+      <header class="play-header">
+        <p class="play-kicker">Recreation nook</p>
+        <h1 id="play-heading" class="serif-heading">Mind Garden</h1>
+        <p class="play-sub">A bright little place for clues, curious words, and moments of play.</p>
+      </header>
+
+      <section class="play-plan" aria-labelledby="play-plan-title">
+        <div>
+          <p class="play-plan-label">Your playful plan</p>
+          <h2 id="play-plan-title" class="play-plan-title">Choosing a gentle rhythm…</h2>
+          <p id="play-plan-copy" class="play-plan-copy">We’re looking at the Wellness signal to suggest a crossword pace.</p>
+        </div>
+        <div class="play-plan-side">
+          <p id="play-plan-count" class="play-plan-count">–</p>
+          <p id="play-plan-progress" class="play-plan-progress">Short games, at your own pace.</p>
+          <button id="play-plan-action" type="button" class="pill-cta">Play the suggestion <span aria-hidden="true">→</span></button>
+        </div>
+        <p class="play-plan-note">This is a play guide based on Wellness patterns, not a test or diagnosis. You can choose any level.</p>
+      </section>
+
+      <section class="puzzle-section" aria-labelledby="puzzle-picker-heading">
+        <div class="play-section-heading">
+          <div>
+            <p class="play-kicker">Choose your path</p>
+            <h2 id="puzzle-picker-heading" class="play-section-title">Pick a crossword</h2>
+          </div>
+          <p class="play-section-note">Tap a level below, then tap a clue or square to begin.</p>
+        </div>
+        <div id="puzzle-picker" class="puzzle-picker" role="group" aria-label="Crossword difficulty"></div>
+      </section>
+
+      <section class="crossword-workspace" aria-labelledby="crossword-title">
+        <div class="crossword-card">
+          <div class="crossword-card-heading">
+            <div>
+              <p id="crossword-level" class="play-kicker">Gentle crossword</p>
+              <h2 id="crossword-title" class="play-section-title">A sunny warm-up</h2>
+            </div>
+            <p id="crossword-word-count" class="crossword-word-count"></p>
+          </div>
+          <p class="crossword-help">Use the arrow keys to move around the board. Tap the same square again to switch direction.</p>
+          <div id="crossword-board" class="crossword-board" aria-label="Crossword board"></div>
+          <p id="crossword-status" class="crossword-status" role="status" aria-live="polite">Choose a clue to start.</p>
+        </div>
+
+        <aside class="clue-card" aria-labelledby="clue-heading">
+          <div class="clue-card-heading">
+            <div>
+              <p class="play-kicker">Take your time</p>
+              <h2 id="clue-heading" class="play-section-title">Clues</h2>
+            </div>
+            <p id="hint-count" class="hint-count">Hints used: 0</p>
+          </div>
+          <div id="crossword-clues" class="crossword-clues"></div>
+          <div class="game-controls">
+            <button id="game-hint" type="button" class="pill-cta">Show a letter <span aria-hidden="true">✦</span></button>
+            <button id="game-restart" type="button" class="quiet-button">Start this puzzle again</button>
+          </div>
+        </aside>
+      </section>
     </section>
   </main>
 
